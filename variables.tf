@@ -5,11 +5,14 @@
 
 variable "instance_pool_config" {
   type = object({
+    # the default attributes are used across the complex type for the default values of all the recurent compartment_id, defined_tags and freeform_tags attributes
     default_compartment_id = string,
     default_defined_tags   = map(string),
     default_freeform_tags  = map(string),
 
+
     instance_pool = object({
+      # instance pool compartment_id
       compartment_id = string,
 
       size          = number,
@@ -35,31 +38,45 @@ variable "instance_pool_config" {
       }))
 
       instance_configuration = map(object({
-        compartment_id = string,
-        defined_tags   = map(string),
-        freeform_tags  = map(string),
-        display_name   = map(string),
-        instance_id    = string,
-        source         = string,
-        instance_id    = string,
-        source         = string,
 
+        # required
+        compartment_id = string,
+
+        #optional 
+        defined_tags  = map(string),
+        freeform_tags = map(string),
+        display_name  = map(string),
+
+
+        # optional - Default = NONE; Values = ["NONE, INSTANCE"]
+        source = string,
+        # Required when source=INSTANCE
+        instance_id = string,
+
+        # required 
         instance_details = object({
+
+          # required - The type of instance details. Supported instanceType is compute
           instance_type = string,
 
-
+          # optional
           block_volumes = map(object({
+            # optional 
             attach_details = object({
-              type                                = string,
+              # required; values = [iscsi, paravirtualized]
+              type = string,
+              # required - applicable when type = isci - default = false
+              use_chap = bool
+
+              #optional
               device                              = string,
               display_name                        = string,
               is_pv_encryption_in_transit_enabled = bool,
               is_read_only                        = bool,
               is_shareable                        = bool,
-              use_chap                            = bool
-
             })
 
+            # optional - creates a new block volume
             create_details = object({
               ad               = string,
               backup_policy_id = string,
@@ -69,14 +86,18 @@ variable "instance_pool_config" {
               display_name     = map(string),
               kms_key_id       = string,
               size_in_gbs      = number,
-              vpus_per_gb      = number,
-              source_details = map(object({
+              # optional - value in [0(lower cost), 10(balanced option), 20(high performance), 30(ultra high performance)]
+              vpus_per_gb = number,
+              volume_id   = string,
+
+              # optional
+              source_details = object({
+
+                # Required - value in [volume, volumeBackup]
                 type = string,
                 id   = string
-              }))
+              })
             })
-
-            volume_id = string,
           }))
 
           launch_details = object({

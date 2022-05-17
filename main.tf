@@ -2,55 +2,76 @@
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 resource "oci_core_instance_configuration" "instance_configuration" {
+
+  count = (var.instance_pool_config.instance_pool != null && var.instance_pool_config.instance_pool != {}) ? 1 : 0
+
   #Required
-  compartment_id = var.compartment_id
+  compartment_id = var.instance_pool_config.instance_pool.instance_configuration.compartment_id != null ? var.instance_pool_config.instance_pool.instance_configuration.compartment_id : var.instance_pool_config.default_compartment_id
 
   #Optional
-  defined_tags  = { "Operations.CostCenter" = "42" }
-  display_name  = var.instance_configuration_display_name
-  freeform_tags = { "Department" = "Finance" }
+  defined_tags  = var.instance_pool_config.instance_pool.instance_configuration.defined_tags != null ? var.instance_pool_config.instance_pool.instance_configuration.defined_tags : var.instance_pool_config.default_defined_tags
+  display_name  = var.instance_pool_config.instance_pool.instance_configuration.display_name
+  freeform_tags = var.instance_pool_config.instance_pool.instance_configuration.freeform_tags != null ? var.instance_pool_config.instance_pool.instance_configuration.freeform_tags : var.instance_pool_config.default_freeform_tags
+
+  # optional - Default = NONE; Values = ["NONE, INSTANCE"]
+  source = var.instance_pool_config.instance_pool.instance_configuration.source
+
+  # Required when source=INSTANCE
+  instance_id = var.instance_pool_config.instance_pool.instance_configuration.instance_id
+
+  #required
   instance_details {
-    #Required
-    instance_type = var.instance_configuration_instance_details_instance_type
+    # required - The type of instance details. Supported instanceType is compute
+    instance_type = var.instance_pool_config.instance_pool.instance_configuration.instance_details.instance_type
 
-    #Optional
-    block_volumes {
+    # Optional
+    dynamic "block_volumes" {
+      for_each = var.instance_pool_config.instance_pool.instance_configuration.instance_details.block_volumes
+      content {
+        # optional
+        attach_details {
+          # required; values = [iscsi, paravirtualized]
+          type = block_volumes.attach_details.type
+          # required - applicable when type = isci - default = false
+          use_chap = block_volumes.attach_details.use_chap
 
-      #Optional
-      attach_details {
-        #Required
-        type = var.instance_configuration_instance_details_block_volumes_attach_details_type
-
-        #Optional
-        device                              = var.instance_configuration_instance_details_block_volumes_attach_details_device
-        display_name                        = var.instance_configuration_instance_details_block_volumes_attach_details_display_name
-        is_pv_encryption_in_transit_enabled = var.instance_configuration_instance_details_block_volumes_attach_details_is_pv_encryption_in_transit_enabled
-        is_read_only                        = var.instance_configuration_instance_details_block_volumes_attach_details_is_read_only
-        is_shareable                        = var.instance_configuration_instance_details_block_volumes_attach_details_is_shareable
-        use_chap                            = var.instance_configuration_instance_details_block_volumes_attach_details_use_chap
-      }
-      create_details {
-
-        #Optional
-        availability_domain = var.instance_configuration_instance_details_block_volumes_create_details_availability_domain
-        backup_policy_id    = data.oci_core_volume_backup_policies.test_volume_backup_policies.volume_backup_policies.0.id
-        compartment_id      = var.compartment_id
-        defined_tags        = { "Operations.CostCenter" = "42" }
-        display_name        = var.instance_configuration_instance_details_block_volumes_create_details_display_name
-        freeform_tags       = { "Department" = "Finance" }
-        kms_key_id          = oci_kms_key.test_key.id
-        size_in_gbs         = var.instance_configuration_instance_details_block_volumes_create_details_size_in_gbs
-        source_details {
-          #Required
-          type = var.instance_configuration_instance_details_block_volumes_create_details_source_details_type
-
-          #Optional
-          id = var.instance_configuration_instance_details_block_volumes_create_details_source_details_id
+          #optional 
+          device                              = block_volumes.attach_details.device
+          display_name                        = block_volumes.attach_details.display_name
+          is_pv_encryption_in_transit_enabled = block_volumes.attach_details.is_pv_encryption_in_transit_enabled
+          is_read_only                        = block_volumes.attach_details.is_read_only
+          is_shareable                        = block_volumes.attach_details.is_shareable
         }
-        vpus_per_gb = var.instance_configuration_instance_details_block_volumes_create_details_vpus_per_gb
+
+        # optional - creates a new block volume
+        create_details {
+          #Optional
+          availability_domain = block_volumes.create_details.ad
+          backup_policy_id    = block_volumes.create_details.backup_policy_id
+          # optional - The OCID of the compartment that contains the volume.
+          compartment_id = block_volumes.create_details.compartment_id != null ? block_volumes.create_details.compartment_id : var.instance_pool_config.default_compartment_id
+          defined_tags   = block_volumes.create_details.defined_tags != null ? block_volumes.create_details.defined_tags : var.instance_pool_config.default_defined_tags
+          display_name   = block_volumes.create_details.display_name
+          freeform_tags  = block_volumes.create_details.freeform_tags != null ? block_volumes.create_details.freeform_tags : var.instance_pool_config.default_freeform_tags
+          kms_key_id     = block_volumes.create_details.id
+          size_in_gbs    = block_volumes.create_details.size_in_gbs
+          volume_id      = block_volumes.create_details.volume_id
+          # optional - value in [0(lower cost), 10(balanced option), 20(high performance), 30(ultra high performance)]
+          vpus_per_gb = block_volumes.create_details.vpus_per_gb
+
+          # optional
+          source_details {
+            # Required - value in [volume, volumeBackup]
+            type = block_volumes.create_details.source_details.type
+
+            # Optional
+            id = block_volumes.create_details.source_details.id
+          }
+        }
       }
-      volume_id = oci_core_volume.test_volume.id
     }
+
+
     launch_details {
 
       #Optional
@@ -174,8 +195,7 @@ resource "oci_core_instance_configuration" "instance_configuration" {
       nic_index    = var.instance_configuration_instance_details_secondary_vnics_nic_index
     }
   }
-  instance_id = oci_core_instance.test_instance.id
-  source      = var.instance_configuration_source
+
 }
 
 resource "oci_core_instance_pool" "instance_pool" {
