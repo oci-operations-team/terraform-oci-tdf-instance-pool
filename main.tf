@@ -74,109 +74,164 @@ resource "oci_core_instance_configuration" "instance_configuration" {
 
     launch_details {
 
-      #Optional
+      # Optional
       agent_config {
 
-        #Optional
-        are_all_plugins_disabled = var.instance_configuration_instance_details_launch_details_agent_config_are_all_plugins_disabled
-        is_management_disabled   = var.instance_configuration_instance_details_launch_details_agent_config_is_management_disabled
-        is_monitoring_disabled   = var.instance_configuration_instance_details_launch_details_agent_config_is_monitoring_disabled
+        # Optional - default = false
+        are_all_plugins_disabled = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.agent_config.are_all_plugins_disabled
+        # optional - default = false
+        is_management_disabled = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.agent_config.is_management_disabled
+        # optional - default = false
+        is_monitoring_disabled = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.agent_config.is_monitoring_disabled
+        # optional
         plugins_config {
-          #Required
-          desired_state = var.instance_configuration_instance_details_launch_details_agent_config_plugins_config_desired_state
-          name          = var.instance_configuration_instance_details_launch_details_agent_config_plugins_config_name
+          # required - value in [ENABLE, DISABLED]
+          desired_state = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.agent_config.is_monitoring_disabled.plugins_config.desired_state
+          # required - plugin name
+          name = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.agent_config.is_monitoring_disabled.plugins_config.name
         }
       }
+
+      # optional
       availability_config {
 
-        #Optional
-        recovery_action = var.instance_configuration_instance_details_launch_details_availability_config_recovery_action
+        # optional - value in [RESTORE_INSTANCE, STOP_INSTANCE]
+        recovery_action = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.availability_config.recovery_action
       }
-      availability_domain     = var.instance_configuration_instance_details_launch_details_availability_domain
-      capacity_reservation_id = oci_core_capacity_reservation.test_capacity_reservation.id
-      compartment_id          = var.compartment_id
+      # optional
+      availability_domain = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.ad
+      # optional
+      capacity_reservation_id = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.capacity_reservation_id
+      # optional
+      compartment_id = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.compartment_id != null ? var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.compartment_id : var.instance_pool_config.default_compartment_id
+
+      # optional
       create_vnic_details {
 
-        #Optional
-        assign_private_dns_record = var.instance_configuration_instance_details_launch_details_create_vnic_details_assign_private_dns_record
-        assign_public_ip          = var.instance_configuration_instance_details_launch_details_create_vnic_details_assign_public_ip
-        defined_tags              = { "Operations.CostCenter" = "42" }
-        display_name              = var.instance_configuration_instance_details_launch_details_create_vnic_details_display_name
-        freeform_tags             = { "Department" = "Finance" }
-        hostname_label            = var.instance_configuration_instance_details_launch_details_create_vnic_details_hostname_label
-        nsg_ids                   = var.instance_configuration_instance_details_launch_details_create_vnic_details_nsg_ids
-        private_ip                = var.instance_configuration_instance_details_launch_details_create_vnic_details_private_ip
-        skip_source_dest_check    = var.instance_configuration_instance_details_launch_details_create_vnic_details_skip_source_dest_check
-        subnet_id                 = oci_core_subnet.test_subnet.id
+        # Optional
+        assign_private_dns_record = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.create_vnic_details.assign_private_dns_record
+        # optional
+        assign_public_ip = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.create_vnic_details.assign_public_ip
+        # optional
+        defined_tags = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.create_vnic_details.defined_tags != null ? var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.create_vnic_details.defined_tags : var.instance_pool_config.default_defined_tags
+        # optional
+        display_name = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.create_vnic_details.display_name
+        # optional
+        freeform_tags = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.create_vnic_details.freeform_tags != null ? var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.create_vnic_details.freeform_tags : var.instance_pool_config.freeform_tags
+        # optional
+        hostname_label = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.create_vnic_details.hostname_label
+        # optional
+        nsg_ids = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.create_vnic_details.nsg_ids
+        # optional 
+        private_ip = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.create_vnic_details.private_ip
+        # optional
+        skip_source_dest_check = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.create_vnic_details.skip_source_dest_check
+        #optional
+        subnet_id = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.create_vnic_details.subnet_id
       }
-      dedicated_vm_host_id = oci_core_dedicated_vm_host.test_dedicated_vm_host.id
-      defined_tags         = { "Operations.CostCenter" = "42" }
-      display_name         = var.instance_configuration_instance_details_launch_details_display_name
-      extended_metadata    = var.instance_configuration_instance_details_launch_details_extended_metadata
-      fault_domain         = var.instance_configuration_instance_details_launch_details_fault_domain
-      freeform_tags        = { "Department" = "Finance" }
-      instance_options {
 
-        #Optional
-        are_legacy_imds_endpoints_disabled = var.instance_configuration_instance_details_launch_details_instance_options_are_legacy_imds_endpoints_disabled
+      # optional
+      dedicated_vm_host_id = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.dedicated_vm_host_id
+      defined_tags         = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.defined_tags != null ? var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.defined_tags : var.instance_pool_config.default_defined_tags
+      display_name         = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.display_name
+      extended_metadata    = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.extended_metadata
+      fault_domain         = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.fd
+      freeform_tags        = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.freeform_tags != null ? var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.freeform_tags : var.instance_pool_config.default_defined_tags
+
+      # optional
+      instance_options {
+        # optional - default = false
+        are_legacy_imds_endpoints_disabled = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.instance_options.are_legacy_imds_endpoints_disabled
       }
-      ipxe_script                         = var.instance_configuration_instance_details_launch_details_ipxe_script
-      is_pv_encryption_in_transit_enabled = var.instance_configuration_instance_details_launch_details_is_pv_encryption_in_transit_enabled
-      launch_mode                         = var.instance_configuration_instance_details_launch_details_launch_mode
+
+      # optional
+      ipxe_script = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.ipxe_script
+      # optional
+      is_pv_encryption_in_transit_enabled = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.is_pv_encryption_in_transit_enabled
+      # optional value in [NATIVE, EMULATED, PARAVIRTUALIZED, CUSTOM]
+      launch_mode = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.launch_mode
+
+      # optional
       launch_options {
 
-        #Optional
-        boot_volume_type                    = var.instance_configuration_instance_details_launch_details_launch_options_boot_volume_type
-        firmware                            = var.instance_configuration_instance_details_launch_details_launch_options_firmware
-        is_consistent_volume_naming_enabled = var.instance_configuration_instance_details_launch_details_launch_options_is_consistent_volume_naming_enabled
-        is_pv_encryption_in_transit_enabled = var.instance_configuration_instance_details_launch_details_launch_options_is_pv_encryption_in_transit_enabled
-        network_type                        = var.instance_configuration_instance_details_launch_details_launch_options_network_type
-        remote_data_volume_type             = var.instance_configuration_instance_details_launch_details_launch_options_remote_data_volume_type
+        # optional - value in [ISCSI, SCSI, IDE, VFIO, PARAVIRTUALIZED]
+        boot_volume_type = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.launch_options.boot_volume_type
+        # optional - value in [BIOS, UEFI_64]
+        firmware = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.launch_options.firmware
+        # optional - default = false
+        is_consistent_volume_naming_enabled = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.launch_options.is_consistent_volume_naming_enabled
+        # optional - deprecated
+        is_pv_encryption_in_transit_enabled = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.launch_options.is_pv_encryption_in_transit_enabled
+        # optional - value in [E100, VIFO, PARAVIRTUALIZED]
+        network_type = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.launch_options.network_type
+        # optional - value in [ISCSI, SCSI, IDE, VFIO, PARAVIRTUALIZED]
+        remote_data_volume_type = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.launch_options.remote_data_volume_type
       }
-      metadata = var.instance_configuration_instance_details_launch_details_metadata
+      # optional
+      metadata = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.metadata
+
+      # optional
       platform_config {
         #Required
-        type = var.instance_configuration_instance_details_launch_details_platform_config_type
+        type = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.platform_config.type
 
-        #Optional
-        is_measured_boot_enabled           = var.instance_configuration_instance_details_launch_details_platform_config_is_measured_boot_enabled
-        is_secure_boot_enabled             = var.instance_configuration_instance_details_launch_details_platform_config_is_secure_boot_enabled
-        is_trusted_platform_module_enabled = var.instance_configuration_instance_details_launch_details_platform_config_is_trusted_platform_module_enabled
-        numa_nodes_per_socket              = var.instance_configuration_instance_details_launch_details_platform_config_numa_nodes_per_socket
+        # optional applicable when instance_type = compute
+        is_measured_boot_enabled = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.platform_config.is_measured_boot_enabled
+        # optional - applicable when instance_type = compute
+        is_secure_boot_enabled = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.platform_config.is_secure_boot_enabled
+        # optional - applicable when instance_type = compute
+        is_trusted_platform_module_enabled = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.platform_config.is_trusted_platform_module_enabled
+        # optional - applicable when type = Applicable when type=AMD_MILAN_BM
+        numa_nodes_per_socket = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.platform_config.numa_nodes_per_socket
       }
+
+      # optional
       preemptible_instance_config {
-        #Required
+        # Required
         preemption_action {
           #Required
-          type = var.instance_configuration_instance_details_launch_details_preemptible_instance_config_preemption_action_type
+          type = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.preemptible_instance_config.preemption_action.type
 
           #Optional
-          preserve_boot_volume = var.instance_configuration_instance_details_launch_details_preemptible_instance_config_preemption_action_preserve_boot_volume
+          preserve_boot_volume = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.preemptible_instance_config.preemption_action.preserve_boot_volume
         }
       }
-      preferred_maintenance_action = var.instance_configuration_instance_details_launch_details_preferred_maintenance_action
-      shape                        = var.instance_configuration_instance_details_launch_details_shape
+      # optional - value in [LIVE_MIGRATE, REBOOT] - default = LIVE_MIGRATE
+      preferred_maintenance_action = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.preferred_maintenance_action
+      # optional
+      shape = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.shape
+
+      # optional
       shape_config {
 
-        #Optional
-        baseline_ocpu_utilization = var.instance_configuration_instance_details_launch_details_shape_config_baseline_ocpu_utilization
-        memory_in_gbs             = var.instance_configuration_instance_details_launch_details_shape_config_memory_in_gbs
-        nvmes                     = var.instance_configuration_instance_details_launch_details_shape_config_nvmes
-        ocpus                     = var.instance_configuration_instance_details_launch_details_shape_config_ocpus
+        # optional - value in [BASELINE_1_8, BASELINE_1_2, BASELINE_1_1]. 
+        baseline_ocpu_utilization = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.shape_config.baseline_ocpu_utilization
+        # optional
+        memory_in_gbs = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.shape_config.memory_in_gbs
+        # optional
+        nvmes = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.shape_config.nvmes
+        # optional
+        ocpus = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.shape_config.ocpus
       }
+
+      # optionals
       source_details {
         #Required
         source_type = var.instance_configuration_instance_details_launch_details_source_details_source_type
 
-        #Optional
-        boot_volume_id          = oci_core_boot_volume.test_boot_volume.id
-        boot_volume_size_in_gbs = var.instance_configuration_instance_details_launch_details_source_details_boot_volume_size_in_gbs
-        image_id                = oci_core_image.test_image.id
+        # optional - Applicable when source_type=bootVolume
+        boot_volume_id = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.source_details.boot_volume_id
+        # optional - Applicable when source_type=image
+        boot_volume_size_in_gbs = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.boot_volume_size_in_gbs
+        # optional -  Applicable when source_type=image
+        image_id = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.image_id
       }
     }
-    secondary_vnics {
 
-      #Optional
+    # optional
+    dynamic "secondary_vnics" {
+      for_each = var.instance_pool_config.instance_pool.instance_configuration.instance_details.
+      # Optional
       create_vnic_details {
 
         #Optional
