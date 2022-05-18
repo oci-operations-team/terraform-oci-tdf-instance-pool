@@ -230,59 +230,79 @@ resource "oci_core_instance_configuration" "instance_configuration" {
 
     # optional
     dynamic "secondary_vnics" {
-      for_each = var.instance_pool_config.instance_pool.instance_configuration.instance_details.
+      for_each = var.instance_pool_config.instance_pool.instance_configuration.instance_details.secondary_vnics
       # Optional
       create_vnic_details {
 
-        #Optional
-        assign_private_dns_record = var.instance_configuration_instance_details_secondary_vnics_create_vnic_details_assign_private_dns_record
-        assign_public_ip          = var.instance_configuration_instance_details_secondary_vnics_create_vnic_details_assign_public_ip
-        defined_tags              = { "Operations.CostCenter" = "42" }
-        display_name              = var.instance_configuration_instance_details_secondary_vnics_create_vnic_details_display_name
-        freeform_tags             = { "Department" = "Finance" }
-        hostname_label            = var.instance_configuration_instance_details_secondary_vnics_create_vnic_details_hostname_label
-        nsg_ids                   = var.instance_configuration_instance_details_secondary_vnics_create_vnic_details_nsg_ids
-        private_ip                = var.instance_configuration_instance_details_secondary_vnics_create_vnic_details_private_ip
-        skip_source_dest_check    = var.instance_configuration_instance_details_secondary_vnics_create_vnic_details_skip_source_dest_check
-        subnet_id                 = oci_core_subnet.test_subnet.id
+        # Optional
+        assign_private_dns_record = secondary_vnics.create_vnic_details.assign_private_dns_record
+        assign_public_ip          = secondary_vnics.create_vnic_details.assign_public_ip
+        defined_tags              = secondary_vnics.create_vnic_details.defined_tags != null ? secondary_vnics.create_vnic_details.defined_tags : var.instance_pool_config.default_defined_tags
+        display_name              = secondary_vnics.create_vnic_details.display_name
+        freeform_tags             = secondary_vnics.create_vnic_details.freeform_tags != null ? secondary_vnics.create_vnic_details.freeform_tags : var.instance_pool_config.default_freeform_tags
+        hostname_label            = secondary_vnics.create_vnic_details.hostname_label
+        nsg_ids                   = secondary_vnics.create_vnic_details.nsg_ids
+        private_ip                = secondary_vnics.create_vnic_details.private_ip
+        skip_source_dest_check    = secondary_vnics.create_vnic_details.skip_source_dest_check
+        subnet_id                 = secondary_vnics.create_vnic_details.subnet_id
       }
-      display_name = var.instance_configuration_instance_details_secondary_vnics_display_name
-      nic_index    = var.instance_configuration_instance_details_secondary_vnics_nic_index
+      # optional
+      display_name = secondary_vnics.display_name
+      # optional
+      nic_index = secondary_vnics.nic_index
     }
   }
 
 }
 
 resource "oci_core_instance_pool" "instance_pool" {
+
+  count = (var.instance_pool_config.instance_pool != null && var.instance_pool_config.instance_pool != {}) ? 1 : 0
+
   #Required
-  compartment_id            = var.compartment_id
+  compartment_id = var.instance_pool_config.instance_pool.compartment_id != null ? var.instance_pool_config.instance_pool.compartment_id : var.instance_pool_config.default_compartment_id
+
+  # required
   instance_configuration_id = oci_core_instance_configuration.instance_configuration.id
+
+  # required
   placement_configurations {
-    #Required
-    availability_domain = var.instance_pool_placement_configurations_availability_domain
-    primary_subnet_id   = oci_core_subnet.test_subnet.id
+    # Required
+    availability_domain = var.instance_pool_config.instance_pool.placements_configurations.ad
+    # required
+    primary_subnet_id = var.instance_pool_config.instance_pool.placements_configurations.primary_subnet_id
 
     #Optional
-    fault_domains = var.instance_pool_placement_configurations_fault_domains
-    secondary_vnic_subnets {
-      #Required
-      subnet_id = oci_core_subnet.test_subnet.id
+    fault_domains = var.instance_pool_config.instance_pool.placements_configurations.fd
+
+    # optional
+    dynamic "secondary_vnic_subnets" {
+
+      for_each = var.instance_pool_config.instance_pool.placement_configurations.secondary_vnic_subnets
+
+      # Required
+      subnet_id = secondary_vnic_subnets.subnet_id
 
       #Optional
-      display_name = var.instance_pool_placement_configurations_secondary_vnic_subnets_display_name
+      display_name = secondary_vnic_subnets.display_name
     }
   }
-  size = var.instance_pool_size
+
+  # required
+  size = var.instance_pool_config.instance_pool.size
 
   #Optional
-  defined_tags  = { "Operations.CostCenter" = "42" }
-  display_name  = var.instance_pool_display_name
-  freeform_tags = { "Department" = "Finance" }
-  load_balancers {
+  defined_tags  = var.instance_pool_config.instance_pool.defined_tags != null ? var.instance_pool_config.instance_pool.defined_tags : var.instance_pool_config.default_defined_tags
+  display_name  = var.instance_pool_config.instance_pool.display_name
+  freeform_tags = var.instance_pool_config.instance_pool.freeform_tags != null ? var.instance_pool_config.instance_pool.freeform_tags : var.instance_pool_config.default_freeform_tags
+
+  # optional
+  dynamic "load_balancers" {
+    for_each = var.instance_pool_config.instance_pool.load_balancers
     #Required
-    backend_set_name = oci_load_balancer_backend_set.test_backend_set.name
-    load_balancer_id = oci_load_balancer_load_balancer.test_load_balancer.id
-    port             = var.instance_pool_load_balancers_port
-    vnic_selection   = var.instance_pool_load_balancers_vnic_selection
+    backend_set_name = load_balancers.backend_set_name
+    load_balancer_id = load_balancers.load_balancer_id
+    port             = load_balancers.port
+    vnic_selection   = load_balancers.vnic_selection
   }
 }

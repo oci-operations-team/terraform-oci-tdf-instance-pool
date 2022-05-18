@@ -12,25 +12,36 @@ variable "instance_pool_config" {
 
 
     instance_pool = object({
-      # instance pool compartment_id
+      # required
       compartment_id = string,
 
-      size          = number,
+      # required
+      size = number,
+
+      # optional
       defined_tags  = map(string),
       freeform_tags = map(string),
       display_name  = map(string),
 
+      # required
       placements_configurations = map(object({
-        ad                = string,
-        fd                = string,
+        # required
+        ad = string,
+        # optional
+        fd = string,
+        # required
         primary_subnet_id = string,
+
+        # optional
         secondary_vnic_subnets = map(object({
           subnet_id    = string,
           display_name = string,
         }))
       }))
 
+      # optional
       load_balancers = map(object({
+        # required
         load_balancer_id = string,
         backend_set_name = string,
         port             = string,
@@ -257,9 +268,11 @@ variable "instance_pool_config" {
 
           # optional
           secondary_vnics = map(object({
+            # optional
             display_name = string,
-            nic_index    = number,
-
+            # optional
+            nic_index = number,
+            # optional
             create_vnic_details = object({
               assign_private_dns_record = bool,
               assign_public_ip          = bool,
