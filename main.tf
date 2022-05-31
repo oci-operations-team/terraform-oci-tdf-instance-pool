@@ -55,7 +55,7 @@ resource "oci_core_instance_configuration" "instance_configuration" {
           freeform_tags  = block_volumes.create_details.freeform_tags != null ? block_volumes.create_details.freeform_tags : var.instance_pool_config.default_freeform_tags
           kms_key_id     = block_volumes.create_details.id
           size_in_gbs    = block_volumes.create_details.size_in_gbs
-          volume_id      = block_volumes.create_details.volume_id
+
           # optional - value in [0(lower cost), 10(balanced option), 20(high performance), 30(ultra high performance)]
           vpus_per_gb = block_volumes.create_details.vpus_per_gb
 
@@ -68,6 +68,8 @@ resource "oci_core_instance_configuration" "instance_configuration" {
             id = block_volumes.create_details.source_details.id
           }
         }
+
+        volume_id = block_volumes.create_details.volume_id
       }
     }
 
@@ -75,20 +77,26 @@ resource "oci_core_instance_configuration" "instance_configuration" {
     launch_details {
 
       # Optional
-      agent_config {
+      dynamic "agent_config" {
 
-        # Optional - default = false
-        are_all_plugins_disabled = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.agent_config.are_all_plugins_disabled
-        # optional - default = false
-        is_management_disabled = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.agent_config.is_management_disabled
-        # optional - default = false
-        is_monitoring_disabled = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.agent_config.is_monitoring_disabled
-        # optional
-        plugins_config {
-          # required - value in [ENABLE, DISABLED]
-          desired_state = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.agent_config.is_monitoring_disabled.plugins_config.desired_state
-          # required - plugin name
-          name = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.agent_config.is_monitoring_disabled.plugins_config.name
+        for_each = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.agent_config != null ? toset([1]) : toset([])
+        content {
+          # Optional - default = false
+          are_all_plugins_disabled = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.agent_config.are_all_plugins_disabled
+          # optional - default = false
+          is_management_disabled = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.agent_config.is_management_disabled
+          # optional - default = false
+          is_monitoring_disabled = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.agent_config.is_monitoring_disabled
+          # optional
+          dynamic "plugins_config" {
+            for_each = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.agent_config.plugins_config != null ? toset([1]) : toset([])
+            content {
+              # required - value in [ENABLE, DISABLED]
+              desired_state = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.agent_config.plugins_config.desired_state
+              # required - plugin name
+              name = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.agent_config.plugins_config.name
+            }
+          }
         }
       }
 
@@ -214,17 +222,17 @@ resource "oci_core_instance_configuration" "instance_configuration" {
         ocpus = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.shape_config.ocpus
       }
 
-      # optionals
+      # optional
       source_details {
         #Required
-        source_type = var.instance_configuration_instance_details_launch_details_source_details_source_type
+        source_type = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.source_details.source_type
 
         # optional - Applicable when source_type=bootVolume
         boot_volume_id = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.source_details.boot_volume_id
         # optional - Applicable when source_type=image
-        boot_volume_size_in_gbs = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.boot_volume_size_in_gbs
+        boot_volume_size_in_gbs = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.source_details.boot_volume_size_in_gbs
         # optional -  Applicable when source_type=image
-        image_id = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.image_id
+        image_id = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.source_details.image_id
       }
     }
 
@@ -232,27 +240,28 @@ resource "oci_core_instance_configuration" "instance_configuration" {
     dynamic "secondary_vnics" {
       for_each = var.instance_pool_config.instance_pool.instance_configuration.instance_details.secondary_vnics
       # Optional
-      create_vnic_details {
+      content {
+        create_vnic_details {
 
-        # Optional
-        assign_private_dns_record = secondary_vnics.create_vnic_details.assign_private_dns_record
-        assign_public_ip          = secondary_vnics.create_vnic_details.assign_public_ip
-        defined_tags              = secondary_vnics.create_vnic_details.defined_tags != null ? secondary_vnics.create_vnic_details.defined_tags : var.instance_pool_config.default_defined_tags
-        display_name              = secondary_vnics.create_vnic_details.display_name
-        freeform_tags             = secondary_vnics.create_vnic_details.freeform_tags != null ? secondary_vnics.create_vnic_details.freeform_tags : var.instance_pool_config.default_freeform_tags
-        hostname_label            = secondary_vnics.create_vnic_details.hostname_label
-        nsg_ids                   = secondary_vnics.create_vnic_details.nsg_ids
-        private_ip                = secondary_vnics.create_vnic_details.private_ip
-        skip_source_dest_check    = secondary_vnics.create_vnic_details.skip_source_dest_check
-        subnet_id                 = secondary_vnics.create_vnic_details.subnet_id
+          # Optional
+          assign_private_dns_record = secondary_vnics.create_vnic_details.assign_private_dns_record
+          assign_public_ip          = secondary_vnics.create_vnic_details.assign_public_ip
+          defined_tags              = secondary_vnics.create_vnic_details.defined_tags != null ? secondary_vnics.create_vnic_details.defined_tags : var.instance_pool_config.default_defined_tags
+          display_name              = secondary_vnics.create_vnic_details.display_name
+          freeform_tags             = secondary_vnics.create_vnic_details.freeform_tags != null ? secondary_vnics.create_vnic_details.freeform_tags : var.instance_pool_config.default_freeform_tags
+          hostname_label            = secondary_vnics.create_vnic_details.hostname_label
+          nsg_ids                   = secondary_vnics.create_vnic_details.nsg_ids
+          private_ip                = secondary_vnics.create_vnic_details.private_ip
+          skip_source_dest_check    = secondary_vnics.create_vnic_details.skip_source_dest_check
+          subnet_id                 = secondary_vnics.create_vnic_details.subnet_id
+        }
+        # optional
+        display_name = secondary_vnics.display_name
+        # optional
+        nic_index = secondary_vnics.nic_index
       }
-      # optional
-      display_name = secondary_vnics.display_name
-      # optional
-      nic_index = secondary_vnics.nic_index
     }
   }
-
 }
 
 resource "oci_core_instance_pool" "instance_pool" {
@@ -263,7 +272,7 @@ resource "oci_core_instance_pool" "instance_pool" {
   compartment_id = var.instance_pool_config.instance_pool.compartment_id != null ? var.instance_pool_config.instance_pool.compartment_id : var.instance_pool_config.default_compartment_id
 
   # required
-  instance_configuration_id = oci_core_instance_configuration.instance_configuration.id
+  instance_configuration_id = oci_core_instance_configuration.instance_configuration[count.index].id
 
   # required
   placement_configurations {
@@ -278,13 +287,15 @@ resource "oci_core_instance_pool" "instance_pool" {
     # optional
     dynamic "secondary_vnic_subnets" {
 
-      for_each = var.instance_pool_config.instance_pool.placement_configurations.secondary_vnic_subnets
+      for_each = var.instance_pool_config.instance_pool.placements_configurations.secondary_vnic_subnets
 
-      # Required
-      subnet_id = secondary_vnic_subnets.subnet_id
+      content {
+        # Required
+        subnet_id = secondary_vnic_subnets.subnet_id
 
-      #Optional
-      display_name = secondary_vnic_subnets.display_name
+        #Optional
+        display_name = secondary_vnic_subnets.display_name
+      }
     }
   }
 
@@ -299,10 +310,12 @@ resource "oci_core_instance_pool" "instance_pool" {
   # optional
   dynamic "load_balancers" {
     for_each = var.instance_pool_config.instance_pool.load_balancers
-    #Required
-    backend_set_name = load_balancers.backend_set_name
-    load_balancer_id = load_balancers.load_balancer_id
-    port             = load_balancers.port
-    vnic_selection   = load_balancers.vnic_selection
+    content {
+      #Required
+      backend_set_name = load_balancers.backend_set_name
+      load_balancer_id = load_balancers.load_balancer_id
+      port             = load_balancers.port
+      vnic_selection   = load_balancers.vnic_selection
+    }
   }
 }
