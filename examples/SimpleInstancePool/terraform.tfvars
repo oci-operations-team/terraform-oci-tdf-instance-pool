@@ -45,4 +45,4 @@ fingerprint = "25:93:69:40:2f:5b:d2:25:0e:eb:f3:41:ea:cb:18:02"
 private_key_path = "~/.oci/oci_api_key_cotud.pem"
 
 # region (us-phoenix-1, ca-toronto-1, etc)
-region = "uk-london-1"
+region = "eu-frankfurt-1"

@@ -117,20 +117,7 @@ instance_pool_config = {
           instance_options = null
 
           # optional
-          launch_options = {
-            # optional - value in [ISCSI, SCSI, IDE, VFIO, PARAVIRTUALIZED]
-            boot_volume_type = "ISCSI"
-            #optional - value in [BIOS, UEFI_64]
-            firmware = null
-            # optional - default = false
-            is_consistent_volume_naming_enabled = false,
-            # optional - deprecated
-            is_pv_encryption_in_transit_enabled = false,
-            # optional - value in [E100, VIFO, PARAVIRTUALIZED]
-            network_type = null
-            # optional - value in [ISCSI, SCSI, IDE, VFIO, PARAVIRTUALIZED]
-            remote_data_volume_type = "PARAVIRTUALIZED"
-          }
+          launch_options = null
           # optional
           platform_config = null
 
