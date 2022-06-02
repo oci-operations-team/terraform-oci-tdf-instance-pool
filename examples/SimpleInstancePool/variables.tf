@@ -14,6 +14,13 @@ variable "region" {}
 
 
 
+# Copyright (c) 2022, Oracle and/or its affiliates.
+# Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
+
+
+
+
+
 variable "instance_pool_config" {
   type = object({
     # the default attributes are used across the complex type for the default values of all the recurent compartment_id, defined_tags and freeform_tags attributes
@@ -149,7 +156,7 @@ variable "instance_pool_config" {
             # optional value in [NATIVE, EMULATED, PARAVIRTUALIZED, CUSTOM]
             launch_mode = string,
             # optional
-            metadata = map(string),
+            ssh_public_key_path = string,
             # optional - value in [LIVE_MIGRATE, REBOOT] - default = LIVE_MIGRATE
             preferred_maintenance_action = string,
             # optional
@@ -298,6 +305,87 @@ variable "instance_pool_config" {
             })
           }))
 
+        })
+      })
+
+      # optional
+      auto_scaling_configuration = object({
+        # required
+        auto_scaling_resources = object({
+          # resource type
+          type = string
+        })
+        # required
+        compartment_id = string,
+
+        #Optional
+        cool_down_in_seconds = number,
+        defined_tags         = map(string),
+        display_name         = string,
+        freeform_tags        = map(string),
+        is_enabled           = bool
+
+        # required
+        policies = object({
+          # Required value in [scheduled, threshold]
+          policy_type = string,
+          # optional 
+          capacity = object({
+            #Optional
+            initial = number,
+            max     = number,
+            min     = number
+          })
+          # optional 
+          display_name = string
+          # required when policy_type=scheduled
+          execution_schedule = object({
+            # Required - cron expression in this format <second> <minute> <hour> <day of month> <month> <day of week> <year>
+            expression = string,
+            # required - The time zone for the execution schedule
+            timezone = string,
+            # required
+            type = string
+          })
+          # optional
+          is_enabled = bool,
+          # required when policy_type=scheduled
+          resource_action = object({
+            #Required
+            action = string
+            #Required
+            action_type = string
+          })
+          # required when policy_type = scheduled
+          rules = map(object({
+
+            # required when policy_type = scheduled
+            action = object({
+
+              # required when policy_type = scheduled
+              type = string,
+              # required when policy_type = scheduled
+              value = string
+            })
+
+            # Required when policy_type=threshold
+            display_name = string,
+
+            # Required when policy_type=threshold
+            metric = object({
+
+              # Required when policy_type=threshold
+              metric_type = string
+              # Required when policy_type=threshold
+              threshold = object({
+
+                # Required when policy_type=threshold
+                operator = string,
+                # Required when policy_type=threshold
+                value = number
+              })
+            })
+          }))
         })
       })
     })

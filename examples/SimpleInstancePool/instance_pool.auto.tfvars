@@ -9,7 +9,7 @@ instance_pool_config = {
 
   instance_pool = {
     compartment_id = null
-    size           = 2
+    size           = 1
     defined_tags   = {}
     freeform_tags  = null
     display_name   = "cotud_inst_pool"
@@ -80,7 +80,7 @@ instance_pool_config = {
           # optional value in [NATIVE, EMULATED, PARAVIRTUALIZED, CUSTOM]
           launch_mode = "NATIVE"
           # optional
-          metadata = null
+          ssh_public_key_path = "/Users/cotudor/my_ssh_keys/cos_key.pub"
           # optional - value in [LIVE_MIGRATE, REBOOT] - default = LIVE_MIGRATE
           preferred_maintenance_action = "LIVE_MIGRATE"
           # optional
@@ -94,7 +94,7 @@ instance_pool_config = {
             # optional
             assign_private_dns_record = false
             # optional
-            assign_public_ip = false
+            assign_public_ip = true
             # optional
             defined_tags = {}
             # optional
@@ -148,6 +148,9 @@ instance_pool_config = {
       }
 
     }
+
+    # optional
+    auto_scaling_configuration = null
 
   }
 

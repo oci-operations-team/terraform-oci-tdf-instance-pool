@@ -26,46 +26,57 @@ resource "oci_core_instance_configuration" "instance_configuration" {
 
     # Optional
     dynamic "block_volumes" {
-      for_each = var.instance_pool_config.instance_pool.instance_configuration.instance_details.block_volumes
+      for_each = var.instance_pool_config.instance_pool.instance_configuration.instance_details.block_volumes != null ? var.instance_pool_config.instance_pool.instance_configuration.instance_details.block_volumes : tomap({})
       content {
         # optional
-        attach_details {
-          # required; values = [iscsi, paravirtualized]
-          type = block_volumes.attach_details.type
-          # required - applicable when type = isci - default = false
-          use_chap = block_volumes.attach_details.use_chap
+        dynamic "attach_details" {
+          for_each = (var.instance_pool_config.instance_pool.instance_configuration.instance_details.block_volumes != null && length(var.instance_pool_config.instance_pool.instance_configuration.instance_details.block_volumes) > 0) ? ((block_volumes.attach_details != null && length(block_volumes.attach_details) > 0) ? toset([1]) : toset([])) : toset([])
+          content {
+            # required; values = [iscsi, paravirtualized]
+            type = block_volumes.attach_details.type
+            # required - applicable when type = isci - default = false
+            use_chap = block_volumes.attach_details.use_chap
 
-          #optional 
-          device                              = block_volumes.attach_details.device
-          display_name                        = block_volumes.attach_details.display_name
-          is_pv_encryption_in_transit_enabled = block_volumes.attach_details.is_pv_encryption_in_transit_enabled
-          is_read_only                        = block_volumes.attach_details.is_read_only
-          is_shareable                        = block_volumes.attach_details.is_shareable
+            #optional 
+            device                              = block_volumes.attach_details.device
+            display_name                        = block_volumes.attach_details.display_name
+            is_pv_encryption_in_transit_enabled = block_volumes.attach_details.is_pv_encryption_in_transit_enabled
+            is_read_only                        = block_volumes.attach_details.is_read_only
+            is_shareable                        = block_volumes.attach_details.is_shareable
+          }
         }
 
         # optional - creates a new block volume
-        create_details {
-          #Optional
-          availability_domain = block_volumes.create_details.ad
-          backup_policy_id    = block_volumes.create_details.backup_policy_id
-          # optional - The OCID of the compartment that contains the volume.
-          compartment_id = block_volumes.create_details.compartment_id != null ? block_volumes.create_details.compartment_id : var.instance_pool_config.default_compartment_id
-          defined_tags   = block_volumes.create_details.defined_tags != null ? block_volumes.create_details.defined_tags : var.instance_pool_config.default_defined_tags
-          display_name   = block_volumes.create_details.display_name
-          freeform_tags  = block_volumes.create_details.freeform_tags != null ? block_volumes.create_details.freeform_tags : var.instance_pool_config.default_freeform_tags
-          kms_key_id     = block_volumes.create_details.id
-          size_in_gbs    = block_volumes.create_details.size_in_gbs
+        dynamic "create_details" {
 
-          # optional - value in [0(lower cost), 10(balanced option), 20(high performance), 30(ultra high performance)]
-          vpus_per_gb = block_volumes.create_details.vpus_per_gb
+          for_each = (var.instance_pool_config.instance_pool.instance_configuration.instance_details.block_volumes != null && length(var.instance_pool_config.instance_pool.instance_configuration.instance_details.block_volumes) > 0) ? ((block_volumes.create_details != null && length(block_volumes.create_details) > 0) ? toset([1]) : toset([])) : toset([])
+          content {
 
-          # optional
-          source_details {
-            # Required - value in [volume, volumeBackup]
-            type = block_volumes.create_details.source_details.type
+            #Optional
+            availability_domain = block_volumes.create_details.ad
+            backup_policy_id    = block_volumes.create_details.backup_policy_id
+            # optional - The OCID of the compartment that contains the volume.
+            compartment_id = block_volumes.create_details.compartment_id != null ? block_volumes.create_details.compartment_id : var.instance_pool_config.default_compartment_id
+            defined_tags   = block_volumes.create_details.defined_tags != null ? block_volumes.create_details.defined_tags : var.instance_pool_config.default_defined_tags
+            display_name   = block_volumes.create_details.display_name
+            freeform_tags  = block_volumes.create_details.freeform_tags != null ? block_volumes.create_details.freeform_tags : var.instance_pool_config.default_freeform_tags
+            kms_key_id     = block_volumes.create_details.id
+            size_in_gbs    = block_volumes.create_details.size_in_gbs
 
-            # Optional
-            id = block_volumes.create_details.source_details.id
+            # optional - value in [0(lower cost), 10(balanced option), 20(high performance), 30(ultra high performance)]
+            vpus_per_gb = block_volumes.create_details.vpus_per_gb
+
+            # optional
+            dynamic "source_details" {
+              for_each = (var.instance_pool_config.instance_pool.instance_configuration.instance_details.block_volumes != null && length(var.instance_pool_config.instance_pool.instance_configuration.instance_details.block_volumes) > 0) ? ((block_volumes.create_details.source_details != null && length(block_volumes.create_details.source_details) > 0) ? toset([1]) : toset([])) : toset([])
+              content {
+                # Required - value in [volume, volumeBackup]
+                type = block_volumes.create_details.source_details.type
+
+                # Optional
+                id = block_volumes.create_details.source_details.id
+              }
+            }
           }
         }
 
@@ -79,7 +90,8 @@ resource "oci_core_instance_configuration" "instance_configuration" {
       # Optional
       dynamic "agent_config" {
 
-        for_each = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.agent_config != null ? toset([1]) : toset([])
+        for_each = (var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.agent_config != null && length(var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.agent_config != null ? tomap(var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.agent_config) : {}) > 0) ? toset([1]) : toset([])
+
         content {
           # Optional - default = false
           are_all_plugins_disabled = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.agent_config.are_all_plugins_disabled
@@ -89,7 +101,7 @@ resource "oci_core_instance_configuration" "instance_configuration" {
           is_monitoring_disabled = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.agent_config.is_monitoring_disabled
           # optional
           dynamic "plugins_config" {
-            for_each = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.agent_config.plugins_config != null ? toset([1]) : toset([])
+            for_each = (var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.agent_config.plugins_config != null && length(var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.agent_config.plugins_config) > 0) ? toset([1]) : toset([])
             content {
               # required - value in [ENABLE, DISABLED]
               desired_state = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.agent_config.plugins_config.desired_state
@@ -102,7 +114,7 @@ resource "oci_core_instance_configuration" "instance_configuration" {
 
       # optional
       dynamic "availability_config" {
-        for_each = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.availability_config != null ? toset([1]) : toset([])
+        for_each = (var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.availability_config != null && length(var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.availability_config != null ? tomap(var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.availability_config) : {}) > 0) ? toset([1]) : toset([])
         content {
           # optional - value in [RESTORE_INSTANCE, STOP_INSTANCE]
           recovery_action = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.availability_config.recovery_action
@@ -116,28 +128,30 @@ resource "oci_core_instance_configuration" "instance_configuration" {
       compartment_id = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.compartment_id != null ? var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.compartment_id : var.instance_pool_config.default_compartment_id
 
       # optional
-      create_vnic_details {
-
-        # Optional
-        assign_private_dns_record = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.create_vnic_details.assign_private_dns_record
-        # optional
-        assign_public_ip = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.create_vnic_details.assign_public_ip
-        # optional
-        defined_tags = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.create_vnic_details.defined_tags != null ? var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.create_vnic_details.defined_tags : var.instance_pool_config.default_defined_tags
-        # optional
-        display_name = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.create_vnic_details.display_name
-        # optional
-        freeform_tags = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.create_vnic_details.freeform_tags != null ? var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.create_vnic_details.freeform_tags : var.instance_pool_config.default_freeform_tags
-        # optional
-        hostname_label = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.create_vnic_details.hostname_label
-        # optional
-        nsg_ids = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.create_vnic_details.nsg_ids
-        # optional 
-        private_ip = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.create_vnic_details.private_ip
-        # optional
-        skip_source_dest_check = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.create_vnic_details.skip_source_dest_check
-        #optional
-        subnet_id = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.create_vnic_details.subnet_id
+      dynamic "create_vnic_details" {
+        for_each = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.create_vnic_details != null ? toset([1]) : toset([])
+        content {
+          # Optional
+          assign_private_dns_record = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.create_vnic_details.assign_private_dns_record
+          # optional
+          assign_public_ip = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.create_vnic_details.assign_public_ip
+          # optional
+          defined_tags = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.create_vnic_details.defined_tags != null ? var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.create_vnic_details.defined_tags : var.instance_pool_config.default_defined_tags
+          # optional
+          display_name = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.create_vnic_details.display_name
+          # optional
+          freeform_tags = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.create_vnic_details.freeform_tags != null ? var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.create_vnic_details.freeform_tags : var.instance_pool_config.default_freeform_tags
+          # optional
+          hostname_label = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.create_vnic_details.hostname_label
+          # optional
+          nsg_ids = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.create_vnic_details.nsg_ids
+          # optional 
+          private_ip = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.create_vnic_details.private_ip
+          # optional
+          skip_source_dest_check = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.create_vnic_details.skip_source_dest_check
+          #optional
+          subnet_id = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.create_vnic_details.subnet_id
+        }
       }
 
       # optional
@@ -183,7 +197,9 @@ resource "oci_core_instance_configuration" "instance_configuration" {
         }
       }
       # optional
-      metadata = var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.metadata
+      metadata = {
+        ssh_authorized_keys = chomp(file(var.instance_pool_config.instance_pool.instance_configuration.instance_details.launch_details.ssh_public_key_path))
+      }
 
       # optional
       dynamic "platform_config" {
@@ -333,6 +349,101 @@ resource "oci_core_instance_pool" "instance_pool" {
       load_balancer_id = load_balancers.load_balancer_id
       port             = load_balancers.port
       vnic_selection   = load_balancers.vnic_selection
+    }
+  }
+}
+
+resource "oci_autoscaling_auto_scaling_configuration" "auto_scaling_configuration" {
+  count = (var.instance_pool_config.instance_pool != null && var.instance_pool_config.instance_pool != {}) ? (var.instance_pool_config.instance_pool.auto_scaling_configuration != null && var.instance_pool_config.instance_pool.auto_scaling_configuration != {} ? 1 : 0) : 0
+
+  # required
+  compartment_id = var.instance_pool_config.instance_pool.auto_scaling_configuration.compartment_id != null ? var.instance_pool_config.instance_pool.auto_scaling_configuration.compartment_id : var.instance_pool_config.default_compartment_id
+
+  #Optional
+  cool_down_in_seconds = var.instance_pool_config.instance_pool.auto_scaling_configuration.cool_down_in_seconds
+  defined_tags         = var.instance_pool_config.instance_pool.auto_scaling_configuration.defined_tags != null ? var.instance_pool_config.instance_pool.auto_scaling_configuration.defined_tags : var.instance_pool_config.default_defined_tags
+  display_name         = var.instance_pool_config.instance_pool.auto_scaling_configuration.display_name
+  freeform_tags        = var.instance_pool_config.instance_pool.auto_scaling_configuration.freeform_tags != null ? var.instance_pool_config.instance_pool.auto_scaling_configuration.freeform_tags : var.instance_pool_config.default_freeform_tags
+  is_enabled           = var.instance_pool_config.instance_pool.auto_scaling_configuration.is_enabled
+
+  #Required
+  auto_scaling_resources {
+    #Required
+    id   = oci_core_instance_pool.instance_pool[count.index].id
+    type = var.instance_pool_config.instance_pool.auto_scaling_configuration.auto_scaling_resources.type
+  }
+
+  # required
+  policies {
+    #Required
+    policy_type = var.instance_pool_config.instance_pool.auto_scaling_configuration.policies.policy_type
+
+    #Optional
+    dynamic "capacity" {
+      for_each = var.instance_pool_config.instance_pool.auto_scaling_configuration.policies.capacity
+      content {
+        #Optional
+        initial = capacity.initial
+        max     = capacity.max
+        min     = capacity.min
+      }
+    }
+    display_name = var.instance_pool_config.instance_pool.auto_scaling_configuration.policies.display_name
+    # required when policy_type=scheduled
+    dynamic "execution_schedule" {
+      for_each = var.instance_pool_config.instance_pool.auto_scaling_configuration.policies.execution_schedule
+      content {
+        # Required - cron expression in this format <second> <minute> <hour> <day of month> <month> <day of week> <year>
+        expression = execution_schedule.expression
+        # required - The time zone for the execution schedule
+        timezone = execution_schedule.timezone
+        # required
+        type = execution_schedule.type
+      }
+    }
+    is_enabled = var.instance_pool_config.instance_pool.auto_scaling_configuration.policies.is_enabled
+    # required when policy_type=scheduled
+    dynamic "resource_action" {
+      for_each = var.instance_pool_config.instance_pool.auto_scaling_configuration.policies.resource_action
+      content {
+        #Required
+        action = resource_action.action
+
+        #Required
+        action_type = resource_action.action_type
+      }
+    }
+    dynamic "rules" {
+      for_each = var.instance_pool_config.instance_pool.auto_scaling_configuration.policies.rules
+      content {
+        #Optional
+        dynamic "action" {
+          for_each = var.instance_pool_config.instance_pool.auto_scaling_configuration.policies.rules != null ? rules.action : {}
+          content {
+            #Optional
+            type  = action.type
+            value = action.value
+          }
+        }
+        display_name = rules.display_name
+        dynamic "metric" {
+          for_each = var.instance_pool_config.instance_pool.auto_scaling_configuration.policies.rules != null ? rules.metric : {}
+          content {
+            #Optional
+            metric_type = metric.metric_type
+            # Required when policy_type=threshold
+            dynamic "threshold" {
+              for_each = var.instance_pool_config.instance_pool.auto_scaling_configuration.policies.rules != null ? (rules.metric != null ? rules.metric.threshold : {}) : {}
+              content {
+
+                #Optional
+                operator = threshold.operator
+                value    = threshold.value
+              }
+            }
+          }
+        }
+      }
     }
   }
 }
