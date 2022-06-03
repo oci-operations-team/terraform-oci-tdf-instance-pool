@@ -333,22 +333,22 @@ variable "instance_pool_config" {
           })
           # optional
           is_enabled = bool,
-          # required when policy_type=scheduled
+          # required 
           resource_action = object({
             #Required
             action = string
             #Required
             action_type = string
           })
-          # required when policy_type = scheduled
+          # required
           rules = map(object({
 
-            # required when policy_type = scheduled
+            # required 
             action = object({
 
-              # required when policy_type = scheduled
+              # required
               type = string,
-              # required when policy_type = scheduled
+              # required 
               value = number
             })
 

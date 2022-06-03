@@ -2,6 +2,8 @@
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 
+
+
 instance_pool_config = {
   default_compartment_id = "ocid1.compartment.oc1..aaaaaaaawwhpzd5kxd7dcd56kiuuxeaa46icb44cnu7osq3mbclo2pnv3dpq"
   default_defined_tags   = {}
@@ -27,9 +29,15 @@ instance_pool_config = {
     }
 
     # optional
-    load_balancers = {}
 
-
+    load_balancers = {
+      lb_1 = {
+        load_balancer_id = "ocid1.loadbalancer.oc1.eu-frankfurt-1.aaaaaaaalfxiresfyeh2wp6q36ewdwxougpj4kyyqobjqrhaaneiwm4up5kq"
+        backend_set_name = "cotud_inst_pool"
+        port             = "80"
+        vnic_selection   = "PrimaryVnic"
+      }
+    }
 
     instance_configuration = {
       # required
@@ -186,20 +194,20 @@ instance_pool_config = {
         is_enabled = true
         # required when policy_type=scheduled
         resource_action = null
-        # required when policy_type = scheduled
+        # required 
         rules = {
           cotud_rule_1_scale_out = {
 
-            # required when policy_type = scheduled
+            # required 
             action = {
 
-              # required when policy_type = scheduled
+              # required 
               type = "CHANGE_COUNT_BY"
-              # required when policy_type = scheduled
+              # required
               value = 1
             }
 
-            # Required when policy_type=threshold
+            # Required 
             display_name = "cotud_rule_1_scale_out"
 
             # Required when policy_type=threshold
@@ -219,16 +227,16 @@ instance_pool_config = {
           }
 
           cotud_rule_1_scale_in = {
-            # required when policy_type = scheduled
+            # required 
             action = {
 
-              # required when policy_type = scheduled
+              # required 
               type = "CHANGE_COUNT_BY"
-              # required when policy_type = scheduled
+              # required 
               value = -1
             }
 
-            # Required when policy_type=threshold
+            # Required 
             display_name = "cotud_rule_1_scale_out"
 
             # Required when policy_type=threshold

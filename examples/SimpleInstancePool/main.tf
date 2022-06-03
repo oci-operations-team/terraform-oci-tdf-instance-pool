@@ -6,10 +6,5 @@ module "instance_pool_module" {
 
   source = "../../"
 
-  providers = {
-
-    oci = oci
-  }
-
   instance_pool_config = var.instance_pool_config
 }

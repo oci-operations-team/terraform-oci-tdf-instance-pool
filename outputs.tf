@@ -7,5 +7,7 @@ output "instance_pool" {
     instance_configuration = oci_core_instance_configuration.instance_configuration
     instance_pool          = oci_core_instance_pool.instance_pool,
     auto_scaling           = oci_autoscaling_auto_scaling_configuration.auto_scaling_configuration
+    local_load_balancers   = local.load_balancers
   }
 }
+

@@ -11,6 +11,8 @@ variable "region" {}
 
 
 
+
+
 variable "instance_pool_config" {
   type = object({
     # the default attributes are used across the complex type for the default values of all the recurent compartment_id, defined_tags and freeform_tags attributes
@@ -339,22 +341,22 @@ variable "instance_pool_config" {
           })
           # optional
           is_enabled = bool,
-          # required when policy_type=scheduled
+          # required 
           resource_action = object({
             #Required
             action = string
             #Required
             action_type = string
           })
-          # required when policy_type = scheduled
+          # required
           rules = map(object({
 
-            # required when policy_type = scheduled
+            # required 
             action = object({
 
-              # required when policy_type = scheduled
+              # required
               type = string,
-              # required when policy_type = scheduled
+              # required 
               value = number
             })
 

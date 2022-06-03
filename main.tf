@@ -1,9 +1,13 @@
 # Copyright (c) 2022, Oracle and/or its affiliates.
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
+locals {
+  load_balancers = var.instance_pool_config.instance_pool.load_balancers != null ? var.instance_pool_config.instance_pool.load_balancers : {}
+}
+
 resource "oci_core_instance_configuration" "instance_configuration" {
 
-  count = (var.instance_pool_config.instance_pool != null && var.instance_pool_config.instance_pool != {}) ? 1 : 0
+  count = var.instance_pool_config != null ? (var.instance_pool_config.instance_pool != null && var.instance_pool_config.instance_pool != {}) ? 1 : 0 : 0
 
   #Required
   compartment_id = var.instance_pool_config.instance_pool.instance_configuration.compartment_id != null ? var.instance_pool_config.instance_pool.instance_configuration.compartment_id : var.instance_pool_config.default_compartment_id
@@ -299,7 +303,7 @@ resource "oci_core_instance_configuration" "instance_configuration" {
 
 resource "oci_core_instance_pool" "instance_pool" {
 
-  count = (var.instance_pool_config.instance_pool != null && var.instance_pool_config.instance_pool != {}) ? 1 : 0
+  count = var.instance_pool_config != null ? (var.instance_pool_config.instance_pool != null && var.instance_pool_config.instance_pool != {}) ? 1 : 0 : 0
 
   #Required
   compartment_id = var.instance_pool_config.instance_pool.compartment_id != null ? var.instance_pool_config.instance_pool.compartment_id : var.instance_pool_config.default_compartment_id
@@ -342,19 +346,20 @@ resource "oci_core_instance_pool" "instance_pool" {
 
   # optional
   dynamic "load_balancers" {
-    for_each = var.instance_pool_config.instance_pool.load_balancers
+    for_each = length(local.load_balancers) > 0 ? local.load_balancers : {}
+    iterator = load_balancer
     content {
       #Required
-      backend_set_name = load_balancers.backend_set_name
-      load_balancer_id = load_balancers.load_balancer_id
-      port             = load_balancers.port
-      vnic_selection   = load_balancers.vnic_selection
+      backend_set_name = load_balancer.value.backend_set_name
+      load_balancer_id = load_balancer.value.load_balancer_id
+      port             = load_balancer.value.port
+      vnic_selection   = load_balancer.value.vnic_selection
     }
   }
 }
 
 resource "oci_autoscaling_auto_scaling_configuration" "auto_scaling_configuration" {
-  count = (var.instance_pool_config.instance_pool != null && var.instance_pool_config.instance_pool != {}) ? (var.instance_pool_config.instance_pool.auto_scaling_configuration != null && var.instance_pool_config.instance_pool.auto_scaling_configuration != {} ? 1 : 0) : 0
+  count = var.instance_pool_config != null ? (var.instance_pool_config.instance_pool != null && var.instance_pool_config.instance_pool != {}) ? (var.instance_pool_config.instance_pool.auto_scaling_configuration != null && var.instance_pool_config.instance_pool.auto_scaling_configuration != {} ? 1 : 0) : 0 : 0
 
   # required
   compartment_id = var.instance_pool_config.instance_pool.auto_scaling_configuration.compartment_id != null ? var.instance_pool_config.instance_pool.auto_scaling_configuration.compartment_id : var.instance_pool_config.default_compartment_id
