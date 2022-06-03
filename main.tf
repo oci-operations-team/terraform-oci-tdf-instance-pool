@@ -380,37 +380,39 @@ resource "oci_autoscaling_auto_scaling_configuration" "auto_scaling_configuratio
 
     #Optional
     dynamic "capacity" {
-      for_each = var.instance_pool_config.instance_pool.auto_scaling_configuration.policies.capacity
+      for_each = var.instance_pool_config.instance_pool.auto_scaling_configuration.policies.capacity != null ? toset([1]) : toset([])
       content {
         #Optional
-        initial = capacity.initial
-        max     = capacity.max
-        min     = capacity.min
+        initial = var.instance_pool_config.instance_pool.auto_scaling_configuration.policies.capacity.initial
+        max     = var.instance_pool_config.instance_pool.auto_scaling_configuration.policies.capacity.max
+        min     = var.instance_pool_config.instance_pool.auto_scaling_configuration.policies.capacity.min
       }
     }
     display_name = var.instance_pool_config.instance_pool.auto_scaling_configuration.policies.display_name
     # required when policy_type=scheduled
     dynamic "execution_schedule" {
-      for_each = var.instance_pool_config.instance_pool.auto_scaling_configuration.policies.execution_schedule
+      for_each = var.instance_pool_config.instance_pool.auto_scaling_configuration.policies.execution_schedule != null ? toset([1]) : toset([])
       content {
         # Required - cron expression in this format <second> <minute> <hour> <day of month> <month> <day of week> <year>
-        expression = execution_schedule.expression
+        expression = var.instance_pool_config.instance_pool.auto_scaling_configuration.policies.execution_schedule.expression
         # required - The time zone for the execution schedule
-        timezone = execution_schedule.timezone
+        timezone = var.instance_pool_config.instance_pool.auto_scaling_configuration.policies.execution_schedule.timezone
         # required
-        type = execution_schedule.type
+        type = var.instance_pool_config.instance_pool.auto_scaling_configuration.policies.execution_schedule.type
       }
     }
+
     is_enabled = var.instance_pool_config.instance_pool.auto_scaling_configuration.policies.is_enabled
+
     # required when policy_type=scheduled
     dynamic "resource_action" {
-      for_each = var.instance_pool_config.instance_pool.auto_scaling_configuration.policies.resource_action
+      for_each = var.instance_pool_config.instance_pool.auto_scaling_configuration.policies.resource_action != null ? toset([1]) : toset([])
       content {
         #Required
-        action = resource_action.action
+        action = var.instance_pool_config.instance_pool.auto_scaling_configuration.policies.resource_action.action
 
         #Required
-        action_type = resource_action.action_type
+        action_type = var.instance_pool_config.instance_pool.auto_scaling_configuration.policies.resource_action.action_type
       }
     }
     dynamic "rules" {
@@ -418,27 +420,27 @@ resource "oci_autoscaling_auto_scaling_configuration" "auto_scaling_configuratio
       content {
         #Optional
         dynamic "action" {
-          for_each = var.instance_pool_config.instance_pool.auto_scaling_configuration.policies.rules != null ? rules.action : {}
+          for_each = var.instance_pool_config.instance_pool.auto_scaling_configuration.policies.rules != null ? (rules.value.action != null ? toset([1]) : toset([])) : toset([])
           content {
             #Optional
-            type  = action.type
-            value = action.value
+            type  = rules.value.action.type
+            value = rules.value.action.value
           }
         }
-        display_name = rules.display_name
+        display_name = rules.value.display_name
         dynamic "metric" {
-          for_each = var.instance_pool_config.instance_pool.auto_scaling_configuration.policies.rules != null ? rules.metric : {}
+          for_each = var.instance_pool_config.instance_pool.auto_scaling_configuration.policies.rules != null ? (rules.value.metric != null ? toset([1]) : toset([])) : toset([])
           content {
             #Optional
-            metric_type = metric.metric_type
+            metric_type = rules.value.metric.metric_type
             # Required when policy_type=threshold
             dynamic "threshold" {
-              for_each = var.instance_pool_config.instance_pool.auto_scaling_configuration.policies.rules != null ? (rules.metric != null ? rules.metric.threshold : {}) : {}
+              for_each = var.instance_pool_config.instance_pool.auto_scaling_configuration.policies.rules != null ? (rules.value.metric.threshold != null ? toset([1]) : toset([])) : toset([])
               content {
 
                 #Optional
-                operator = threshold.operator
-                value    = threshold.value
+                operator = rules.value.metric.threshold.operator
+                value    = rules.value.metric.threshold.value
               }
             }
           }

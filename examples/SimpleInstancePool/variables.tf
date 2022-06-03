@@ -9,16 +9,6 @@ variable "fingerprint" {}
 variable "private_key_path" {}
 variable "region" {}
 
-# Copyright (c) 2022, Oracle and/or its affiliates.
-# Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
-
-
-
-# Copyright (c) 2022, Oracle and/or its affiliates.
-# Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
-
-
-
 
 
 variable "instance_pool_config" {
@@ -365,7 +355,7 @@ variable "instance_pool_config" {
               # required when policy_type = scheduled
               type = string,
               # required when policy_type = scheduled
-              value = string
+              value = number
             })
 
             # Required when policy_type=threshold

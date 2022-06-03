@@ -349,7 +349,7 @@ variable "instance_pool_config" {
               # required when policy_type = scheduled
               type = string,
               # required when policy_type = scheduled
-              value = string
+              value = number
             })
 
             # Required when policy_type=threshold

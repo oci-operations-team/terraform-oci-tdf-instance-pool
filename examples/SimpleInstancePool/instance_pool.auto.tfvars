@@ -149,9 +149,109 @@ instance_pool_config = {
 
     }
 
-    # optional
     auto_scaling_configuration = null
 
-  }
+    # optional
+    auto_scaling_configuration = {
+      auto_scaling_resources = {
+        # resource type
+        type = "instancePool"
+      }
+      # required
+      compartment_id = null
 
+      #Optional
+      cool_down_in_seconds = 300
+      defined_tags         = null
+      display_name         = "cotud_auto_scaling"
+      freeform_tags        = null
+      is_enabled           = true
+
+      # required
+      policies = {
+        # Required value in [scheduled, threshold]
+        policy_type = "threshold"
+        # optional 
+        capacity = {
+          #Optional
+          initial = 1
+          max     = 5
+          min     = 1
+        }
+        # optional 
+        display_name = "cotud_auto_scaling_policy"
+        # required when policy_type=scheduled
+        execution_schedule = null
+        # optional
+        is_enabled = true
+        # required when policy_type=scheduled
+        resource_action = null
+        # required when policy_type = scheduled
+        rules = {
+          cotud_rule_1_scale_out = {
+
+            # required when policy_type = scheduled
+            action = {
+
+              # required when policy_type = scheduled
+              type = "CHANGE_COUNT_BY"
+              # required when policy_type = scheduled
+              value = 1
+            }
+
+            # Required when policy_type=threshold
+            display_name = "cotud_rule_1_scale_out"
+
+            # Required when policy_type=threshold
+            metric = {
+
+              # Required when policy_type=threshold
+              metric_type = "CPU_UTILIZATION"
+              # Required when policy_type=threshold
+              threshold = {
+
+                # Required when policy_type=threshold
+                operator = "GT"
+                # Required when policy_type=threshold
+                value = "70"
+              }
+            }
+          }
+
+          cotud_rule_1_scale_in = {
+            # required when policy_type = scheduled
+            action = {
+
+              # required when policy_type = scheduled
+              type = "CHANGE_COUNT_BY"
+              # required when policy_type = scheduled
+              value = -1
+            }
+
+            # Required when policy_type=threshold
+            display_name = "cotud_rule_1_scale_out"
+
+            # Required when policy_type=threshold
+            metric = {
+
+              # Required when policy_type=threshold
+              metric_type = "CPU_UTILIZATION"
+              # Required when policy_type=threshold
+              threshold = {
+
+                # Required when policy_type=threshold
+                operator = "LT"
+                # Required when policy_type=threshold
+                value = "50"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 }
+
+
+
+
