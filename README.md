@@ -183,8 +183,6 @@ instance_pool_config = {
 
     }
 
-    auto_scaling_configuration = null
-
     # optional
     auto_scaling_configuration = {
       auto_scaling_resources = {
@@ -315,7 +313,7 @@ We're exposing both versions as flat is easy to consume by other automations whe
 
 ## Notes/Issues
 
-- Please note that I'm curently facing a bug with the operation of removing an attached load balancer.
+- Please note that we are curently facing a bug with the operation of removing/updating an attached load balancer.
 
 ## Versions
 

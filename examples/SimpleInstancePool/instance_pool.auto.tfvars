@@ -157,8 +157,6 @@ instance_pool_config = {
 
     }
 
-    auto_scaling_configuration = null
-
     # optional
     auto_scaling_configuration = {
       auto_scaling_resources = {

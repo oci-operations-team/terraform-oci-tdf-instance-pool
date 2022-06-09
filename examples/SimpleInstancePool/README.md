@@ -1,6 +1,5 @@
-# Template for Nexi Application provisioning - complex input - manual template
-
-In order to provision a new application make a copy of this folder and rename it.
+# Example fo provisioning a simple Instance Pool configuration
+In order to provision a new simple instance pool configuration make a copy of this folder and rename it.
 
 After that edit the configuration files in order to specify the inputs for provisioning your new tenant.
 
@@ -28,534 +27,268 @@ private_key_path="<path to the private key that matches the fingerprint above>"
 region="<your home region>"
 ```
 
-## Tenant IAM Compartments Structure
+## Instance Pool Configuration
 
-In this template, just as an example, we'll be providing the structure described in the diagram bellow.
+In this template, just as an example, we'll be providing the structure described in the example bellow.
 
-![\label{mylabel}](images/CompStructure1.jpg) 
-
-I want to emphasize that this is not limited to this specific structure. You can define your tenant template with any IAM Compartments topology.
-
-In the example structure bellow we have the following IAM Compartments structure:
-
- - 2nd half of the production level 3:
-     - ```cmp-prod-<application-name>``` which is a container for the rest of the application production compartments and it is also a spoke VCN connected to a shared production HUB VCN.
-     - ```cmp-stag-<application-name>``` which is a container for the rest of the application staging compartments and it is also a spoke VCN connected to a shared staging HUB VCN.
-
-
-Edit the ```iam.auto.tfvars```:
+Edit the ```instance_pool.auto.tfvars```:
 
 ```
-# Search and replace: 
-#     - <parent_compartment_ocid> with your parent compartment OCID
-#     - <application_name> with your application name
-#     - <application_acronym> with your application acronym
-
-# Compartments config Variable
-
-app_compartments_config = {
-  default_compartment_id = "<parent_compartment_ocid>"
+instance_pool_config = {
+  default_compartment_id = "ocid1.compartment.oc1..aaaaaaaawwhpzd5kxd7dcd56kiuuxeaa46icb44cnu7osq3mbclo2pnv3dpq"
   default_defined_tags   = {}
   default_freeform_tags  = null
-  compartments = {
 
-    # Production Compartments
-    cmp-prod-<application_acronym> = {
-      description    = "Compartment holding production resources of <application_name> application"
-      compartment_id = "<parent_compartment_ocid>"
-      defined_tags   = null
-      freeform_tags  = null
-      enable_delete  = true
-      sub_compartments = {
-        cmp-prod-<application_acronym>-nw = {
-          description   = "Compartment holding production network resources of <application_name> application"
-          defined_tags  = null
-          freeform_tags = null
-          enable_delete = true
-          sub_compartments = {}
-        }
-        cmp-prod-<application_acronym>-db = {
-          description   = "Compartment holding production database resources of <application_name> application"
-          defined_tags  = null
-          freeform_tags = null
-          enable_delete = true
-          sub_compartments = {}
-        }
+  instance_pool = {
+    compartment_id = null
+    size           = 1
+    defined_tags   = {}
+    freeform_tags  = null
+    display_name   = "cotud_inst_pool"
+
+    # required
+    placements_configurations = {
+      # required
+      ad = "NoEK:EU-FRANKFURT-1-AD-1"
+      # optional
+      fd = null
+      # required
+      primary_subnet_id = "ocid1.subnet.oc1.eu-frankfurt-1.aaaaaaaaxrvqkn3sd4bxzlhpyn2aaw7puroolcwodh3t5wpyb5sowt27baaq"
+      #optional
+      secondary_vnic_subnets = {}
+    }
+
+    # optional
+
+    load_balancers = {
+      lb_1 = {
+        load_balancer_id = "ocid1.loadbalancer.oc1.eu-frankfurt-1.aaaaaaaalfxiresfyeh2wp6q36ewdwxougpj4kyyqobjqrhaaneiwm4up5kq"
+        backend_set_name = "cotud_inst_pool"
+        port             = "80"
+        vnic_selection   = "PrimaryVnic"
       }
     }
 
-    #Staging Compartments
-    cmp-stag-<application_acronym> = {
-      description    = "Compartment holding staging resources of <application_name> application"
-      compartment_id = "<parent_compartment_ocid>"
-      defined_tags   = null
-      freeform_tags  = null
-      enable_delete  = true
-      sub_compartments = {
-        cmp-stag-<application_acronym>-nw = {
-          description   = "Compartment holding staging network resources of <application_name> application"
-          defined_tags  = null
+    instance_configuration = {
+      # required
+      compartment_id = null
+
+      #optional 
+      defined_tags  = {}
+      freeform_tags = null
+      display_name  = "cotud_inst_config"
+
+      # optional - Default = NONE; Values = ["NONE, INSTANCE"]
+      source = "NONE"
+      # Required when source=INSTANCE
+      instance_id = null
+      # required 
+      instance_details = {
+
+        # required - The type of instance details. Supported instanceType is compute
+        instance_type = "compute"
+
+        # optional
+        block_volumes = {}
+
+        # optional
+        launch_details = {
+          # optional
+          ad = "NoEK:EU-FRANKFURT-1-AD-1"
+          # optional
+          fd = null
+          # optional
+          capacity_reservation_id = null
+          # optional
+          compartment_id = null
+          # optional
+          dedicated_vm_host_id = null
+          # optional
+          defined_tags = {}
+          # optional
           freeform_tags = null
-          enable_delete = true
-          sub_compartments = {}
+          # optional
+          display_name = "cotud_launch_details"
+          # optional
+          extended_metadata = null
+          # optional
+          ipxe_script = null
+          # optional
+          is_pv_encryption_in_transit_enabled = false
+          # optional value in [NATIVE, EMULATED, PARAVIRTUALIZED, CUSTOM]
+          launch_mode = "NATIVE"
+          # optional
+          ssh_public_key_path = "/Users/cotudor/my_ssh_keys/cos_key.pub"
+          # optional - value in [LIVE_MIGRATE, REBOOT] - default = LIVE_MIGRATE
+          preferred_maintenance_action = "LIVE_MIGRATE"
+          # optional
+          shape = "VM.Standard2.1"
+          # optional
+          agent_config = null
+          # optional
+          availability_config = null
+
+          create_vnic_details = {
+            # optional
+            assign_private_dns_record = false
+            # optional
+            assign_public_ip = true
+            # optional
+            defined_tags = {}
+            # optional
+            freeform_tags = null
+            # optional
+            display_name = "cotud_instpool_vnic1"
+            # optional
+            hostname_label = "cotudinstpoll",
+            # optional 
+            nsg_ids = null
+            # optional
+            private_ip = null
+            # optional
+            skip_source_dest_check = true
+            # optional
+            subnet_id = "ocid1.subnet.oc1.eu-frankfurt-1.aaaaaaaaxrvqkn3sd4bxzlhpyn2aaw7puroolcwodh3t5wpyb5sowt27baaq"
+          }
+
+          # optional
+          instance_options = null
+
+          # optional
+          launch_options = null
+          # optional
+          platform_config = null
+
+          # optional
+          preemptible_instance_config = null
+
+          # optional
+          shape_config = null
+
+          # optionals
+          source_details = {
+
+            # required - value in [bootvolume, image]
+            source_type = "image"
+            # optional - Applicable when source_type=bootVolume
+            boot_volume_id = null
+            # optional - Applicable when source_type=image
+            boot_volume_size_in_gbs = 50
+            # optional -  Applicable when source_type=image
+            image_id = "ocid1.image.oc1.eu-frankfurt-1.aaaaaaaawq2h5g4nb6odpdt3rwyvp7bx26fv5pyjpbwzlwnybztss34vuz2q"
+          }
+
+
         }
-        cmp-stag-<application_acronym>-db = {
-          description   = "Compartment holding staging database resources of <application_name> application"
-          defined_tags  = null
-          freeform_tags = null
-          enable_delete = true
-          sub_compartments = {}
+
+        # optional
+        secondary_vnics = {}
+      }
+
+    }
+
+    # optional
+    auto_scaling_configuration = {
+      auto_scaling_resources = {
+        # resource type
+        type = "instancePool"
+      }
+      # required
+      compartment_id = null
+
+      #Optional
+      cool_down_in_seconds = 300
+      defined_tags         = null
+      display_name         = "cotud_auto_scaling"
+      freeform_tags        = null
+      is_enabled           = true
+
+      # required
+      policies = {
+        # Required value in [scheduled, threshold]
+        policy_type = "threshold"
+        # optional 
+        capacity = {
+          #Optional
+          initial = 1
+          max     = 5
+          min     = 1
+        }
+        # optional 
+        display_name = "cotud_auto_scaling_policy"
+        # required when policy_type=scheduled
+        execution_schedule = null
+        # optional
+        is_enabled = true
+        # required when policy_type=scheduled
+        resource_action = null
+        # required 
+        rules = {
+          cotud_rule_1_scale_out = {
+
+            # required 
+            action = {
+
+              # required 
+              type = "CHANGE_COUNT_BY"
+              # required
+              value = 1
+            }
+
+            # Required 
+            display_name = "cotud_rule_1_scale_out"
+
+            # Required when policy_type=threshold
+            metric = {
+
+              # Required when policy_type=threshold
+              metric_type = "CPU_UTILIZATION"
+              # Required when policy_type=threshold
+              threshold = {
+
+                # Required when policy_type=threshold
+                operator = "GT"
+                # Required when policy_type=threshold
+                value = "70"
+              }
+            }
+          }
+
+          cotud_rule_1_scale_in = {
+            # required 
+            action = {
+
+              # required 
+              type = "CHANGE_COUNT_BY"
+              # required 
+              value = -1
+            }
+
+            # Required 
+            display_name = "cotud_rule_1_scale_out"
+
+            # Required when policy_type=threshold
+            metric = {
+
+              # Required when policy_type=threshold
+              metric_type = "CPU_UTILIZATION"
+              # Required when policy_type=threshold
+              threshold = {
+
+                # Required when policy_type=threshold
+                operator = "LT"
+                # Required when policy_type=threshold
+                value = "50"
+              }
+            }
+          }
         }
       }
     }
   }
 }
-```
-Please note that the values keys are used as resources/object names in OCI.
-
-Search and replace: 
-
-- ```<parent_compartment_ocid>``` with your parent compartment OCID
-- ```<application_name>``` with your application name
-- ``` <application_acronym>``` with your application acronym
-
-
-Feel free to replace any other configuration you want.
-
-## Tenant Networking Topology
-
-In this template, just as an example, we'll be providing the structure described in the diagram bellow.
-
-![\label{mylabel}](images/networking_tenant_01.jpg) 
-![\label{mylabel}](images/networking_tenant_02.jpg) 
-
-I want to emphasize that this is not limited to this specific structure. You can define your tenant template with any networking topology.
-
-Please note the following matching between the VCNs in the diagram and our predefined categories:
-- production vcns:
-    -  <application_acronym>prod01-vcn
-- staging vcns:
-    - <application_acronym>stag01-vcn
-
-Edit the ```networking.auto.tfvars``` file:
 
 ```
-# Search and replace: 
-#     - <application_name> with your application name
-#     - <application_acronym> with your application acronym
-
-networking = {
-
-  # PROD VCNs
-  prod_networking = {
-    default_network_compartment_name = "cmp-prod-<application_acronym>-nw"
-    service_label                    = "<application_name>"
-    service_gateway_cidr             = "all-services-in-oracle-services-network"
-    drg_id                           = null
-    vcns = {
-      # Production VCN
-      <application_acronym>prod01-vcn = {
-        compartment_name  = "cmp-prod-<application_acronym>-nw"
-        cidr              = "10.0.0.0/22"
-        dns_label         = "<application_acronym>prod01"
-        is_create_igw     = false
-        is_attach_drg     = false
-        block_nat_traffic = false
-        defined_tags      = null
-        freeform_tags     = null
-        subnets = {
-          prod_private_infra = {
-            compartment_name = "cmp-prod-<application_acronym>-nw"
-            defined_tags     = null
-            freeform_tags    = null
-            cidr             = "10.0.0.0/24"
-            dns_label        = "prdprvinfr"
-            dhcp_options_id  = null
-            security_lists   = {}
-            private          = true
-          }
-          prod_private_app = {
-            compartment_name = "cmp-prod-<application_acronym>-nw"
-            defined_tags     = null
-            freeform_tags    = null
-            cidr             = "10.0.1.0/24"
-            dns_label        = "prdprvapp"
-            dhcp_options_id  = null
-            security_lists   = {}
-            private          = true
-          }
-          prod_private_db = {
-            compartment_name = "cmp-prod-<application_acronym>-nw"
-            defined_tags     = null
-            freeform_tags    = null
-            cidr             = "10.0.2.0/24"
-            dns_label        = "prdprvdb"
-            dhcp_options_id  = null
-            security_lists   = {}
-            private          = true
-          }
-        }
-      }
-    }
-  }
-
-    # STAG VCNs
-  stag_networking = {
-    default_network_compartment_name = "cmp-stag-<application_acronym>-nw"
-    service_label                    = "<application_name>"
-    service_gateway_cidr             = "all-services-in-oracle-services-network"
-    drg_id                           = null
-    vcns = {
-      # STAG VCN
-      <application_acronym>stag01-vcn = {
-        compartment_name  = "cmp-stag-<application_acronym>-nw"
-        cidr              = "192.168.0.0/17"
-        dns_label         = "<application_acronym>stag01"
-        is_create_igw     = false
-        is_attach_drg     = false
-        block_nat_traffic = false
-        defined_tags      = null
-        freeform_tags     = null
-        subnets = {
-          stag_private_infra = {
-            compartment_name = "cmp-stag-<application_acronym>-nw"
-            defined_tags     = null
-            freeform_tags    = null
-            cidr             = "192.168.0.0/24"
-            dns_label        = "stagprvinfr"
-            dhcp_options_id  = null
-            security_lists   = {}
-            private          = true
-          }
-          stag_private_app = {
-            compartment_name = "cmp-stag-<application_acronym>-nw"
-            defined_tags     = null
-            freeform_tags    = null
-            cidr             = "192.168.1.0/24"
-            dns_label        = "stagprvapp"
-            dhcp_options_id  = null
-            security_lists   = {}
-            private          = true
-          }
-          stag_private_db = {
-            compartment_name = "cmp-stag-<application_acronym>-nw"
-            defined_tags     = null
-            freeform_tags    = null
-            cidr             = "192.168.2.0/24"
-            dns_label        = "stagprvdb"
-            dhcp_options_id  = null
-            security_lists   = {}
-            private          = true
-          }
-        }
-      }
-    }
-  }
-}
-```
-Please note that the values keys are used as resources/object names in OCI specifically for VCNs, subnets and security lists.
-
-Search and replace: 
-- ```<application_name>``` with your application name
-- ```<application_acronym>``` with your application acronym
-
-Feel free to replace any other configuration you want.
-
-## Network Security Configuration
-
-We're creating 2 categories of NSGs:
-- production NSGs - in this category the user will be able to define a set of NSGs attached to production VCNs
-- staging NSGs - in this category the user will be able to define a set of NSGs attached to production VCNs
-
-I want to emphasize that this is not limited to this specific structure. You can define your tenant template with any networking security topology.
-
-- ```app_network_sec_config```:
-     - Under the network security you can define multiple NSGs for one of the vcns provisioned during app provisioning
-     - You can have multiple elements under the ```app_network_sec_config```
-
-Edit the ```network-security.auto.tfvars``` file:
-
-```
-
-# Search and replace: 
-#     - <application_name> with your application name
-#     - <application_acronym> with your application acronym
-
-
-### app network security
-app_network_sec_config = {
-  # Prod Network Security
-  <application_name>_netsec_<application_acronym>prod01-vcn = {
-    default_compartment_name = "cmp-prod-<application_acronym>-nw",
-    vcn_name                 = "<application_acronym>prod01-vcn",
-    default_defined_tags     = null,
-    default_freeform_tags    = null,
-    security_lists           = {},
-    nsgs = {
-      nsg_db_<application_name>_netsec_<application_acronym>prod01-vcn = {
-        compartment_name = "cmp-prod-<application_acronym>-nw"
-        defined_tags     = null,
-        freeform_tags    = null,
-        ingress_rules = [
-          {
-            description = "APP NSGs"
-            stateless   = false
-            protocol    = "6"
-            src         = "nsg_app_<application_name>_netsec_<application_acronym>prod01-vcn"
-            src_type    = "NSG_NAME"
-            src_port    = null
-            dst_port = {
-              min = "1521"
-              max = "1521"
-            }
-            icmp_code = null
-            icmp_type = null
-          }
-        ]
-        egress_rules = [
-          {
-            description = "egress to anywhere"
-            stateless   = false
-            protocol    = "all"
-            dst         = "0.0.0.0/0"
-            dst_type    = "CIDR_BLOCK"
-            src_port    = null
-            dst_port    = null
-            icmp_code   = null
-            icmp_type   = null
-          }
-        ]
-      },
-      nsg_app_<application_name>_netsec_<application_acronym>prod01-vcn = {
-        compartment_name = "cmp-prod-<application_acronym>-nw"
-        defined_tags     = null,
-        freeform_tags    = null,
-        ingress_rules = [
-          {
-            description = "APP NSG"
-            stateless   = false
-            protocol    = "6"
-            src         = "0.0.0.0/0"
-            src_type    = "CIDR_BLOCK"
-            src_port    = null
-            dst_port = {
-              min = "443"
-              max = "443"
-            }
-            icmp_code = null
-            icmp_type = null
-          }
-        ]
-        egress_rules = [
-          {
-            description = "egress to anywhere"
-            stateless   = false
-            protocol    = "all"
-            dst         = "0.0.0.0/0"
-            dst_type    = "CIDR_BLOCK"
-            src_port    = null
-            dst_port    = null
-            icmp_code   = null
-            icmp_type   = null
-          }
-        ]
-      }
-    }
-  }
-
-  # Stag Network Security
-  <application_name>_netsec_<application_acronym>stag01-vcn = {
-    default_compartment_name = "cmp-prod-<application_acronym>-nw",
-    vcn_name                 = "<application_acronym>stag01-vcn",
-    default_defined_tags     = null,
-    default_freeform_tags    = null,
-    security_lists           = {},
-    nsgs = {
-      nsg_db_<application_name>_netsec_<application_acronym>stag01-vcn = {
-        compartment_name = "cmp-stag-<application_acronym>-nw"
-        defined_tags     = null,
-        freeform_tags    = null,
-        ingress_rules = [
-          {
-            description = "APP NSGs"
-            stateless   = false
-            protocol    = "6"
-            src         = "nsg_app_<application_name>_netsec_<application_acronym>stag01-vcn"
-            src_type    = "NSG_NAME"
-            src_port    = null
-            dst_port = {
-              min = "1521"
-              max = "1521"
-            }
-            icmp_code = null
-            icmp_type = null
-          }
-        ]
-        egress_rules = [
-          {
-            description = "egress to anywhere"
-            stateless   = false
-            protocol    = "all"
-            dst         = "0.0.0.0/0"
-            dst_type    = "CIDR_BLOCK"
-            src_port    = null
-            dst_port    = null
-            icmp_code   = null
-            icmp_type   = null
-          }
-        ]
-      },
-      nsg_app_<application_name>_netsec_<application_acronym>stag01-vcn = {
-        compartment_name = "cmp-stag-<application_acronym>-nw"
-        defined_tags     = null,
-        freeform_tags    = null,
-        ingress_rules = [
-          {
-            description = "APP NSG"
-            stateless   = false
-            protocol    = "6"
-            src         = "0.0.0.0/0"
-            src_type    = "CIDR_BLOCK"
-            src_port    = null
-            dst_port = {
-              min = "443"
-              max = "443"
-            }
-            icmp_code = null
-            icmp_type = null
-          }
-        ]
-        egress_rules = [
-          {
-            description = "egress to anywhere"
-            stateless   = false
-            protocol    = "all"
-            dst         = "0.0.0.0/0"
-            dst_type    = "CIDR_BLOCK"
-            src_port    = null
-            dst_port    = null
-            icmp_code   = null
-            icmp_type   = null
-          }
-        ]
-      }
-    }
-  }
-}
-```
-
-Search and replace: 
-- <application_name> with your application name
-- <application_acronym> with your application acronym
-
-Feel free to replace any other configuration you want.
-
-## Application Monitoring Configuration
-
-We're creating 2 categories of OCI Monitoring events:
-
-- ```cmp-prod-<application_acronym>``` - OCI Events to monitor "*produdction*" resources.
-- ```cmp-stag-<application_acronym>``` - OCI Events to monitor only "*staging*" specific resources.
-
-To define events you'll need to provide the following, as part of the ```event_rules``` variable:
- - ```default_compartment_name``` - the compartment to be used if when the ```event_rule``` is defined the ```compartment_name``` is missing.
- - A number of event rules where the ```event_rule``` key will be the ```event_rule``` name
-    - ```compartment_name``` - name the of the compartment where the ```event_rule``` will be created
-    - ```condition```- the condition that will trigger the event
-    - ```description``` - event description
-    - ```is_enabled``` - enable or disable the event 
-    - ```actions``` : a list of actions to be performed when the event is triggered
-        - ```action_type``` - the action type
-        - ```is_enabled``` - enable or disable the action
-        - ```description``` - action description
-        - ```function_id``` - if a calling a function is the action then specify the function ocid
-        - ```stream_id``` - if sending a message to a stream is the action then specify stream ocid
-        - ```topic_id``` : if sending a message to a notification topic is the action then specify OCI Notification ocid
-
-
-
-Edit the ```monitoring.auto.tfvars``` file:
-
-```
-
-# Search and replace: 
-#     - <application_acronym> with your application acronym
-#     - <ocid-stream-ocid> with your OCI Stream OCID 
-
-
-
-event_rules = {
-  default_compartment_name = "cmp-prod-<application_acronym>"
-  event_rules = {
-    # Production Resources Monitoring
-    rule_prod_vcn_create = {
-      actions = [{
-        action_type = "OSS"
-        description = "Write event data on Streaming Service"
-        function_id = null
-        is_enabled  = true
-        stream_id   = "<ocid-stream-ocid>"
-        topic_id    = null
-      }]
-      compartment_name = "cmp-prod-<application_acronym>"
-      condition        = "{\"eventType\": \"com.oraclecloud.virtualnetwork.createvcn\"}"
-      description      = "Test Event Rule - Prod VCN Create"
-      is_enabled       = true
-    }
-    rule_prod_vcn_update = {
-      actions = [{
-        action_type = "OSS"
-        description = "Write event data on Streaming Service"
-        function_id = null
-        is_enabled  = true
-        stream_id   = "<ocid-stream-ocid>"
-        topic_id    = null
-      }]
-      compartment_name = "cmp-prod-<application_acronym>"
-      condition        = "{\"eventType\": \"com.oraclecloud.virtualnetwork.updatevcn\"}"
-      description      = "Test Event Rule - Prod VCN Update"
-      is_enabled       = true
-    }
-
-    # Staging Resources Monitoring
-    rule_stag_vcn_create = {
-      actions = [{
-        action_type = "OSS"
-        description = "Write event data on Streaming Service"
-        function_id = null
-        is_enabled  = true
-        stream_id   = "<ocid-stream-ocid>"
-        topic_id    = null
-      }]
-      compartment_name = "cmp-stag-<application_acronym>"
-      condition        = "{\"eventType\": \"com.oraclecloud.virtualnetwork.createvcn\"}"
-      description      = "Test Event Rule - Stag VCN Create"
-      is_enabled       = true
-    }
-    rule_prod_vcn_update = {
-      actions = [{
-        action_type = "OSS"
-        description = "Write event data on Streaming Service"
-        function_id = null
-        is_enabled  = true
-        stream_id   = "<ocid-stream-ocid>"
-        topic_id    = null
-      }]
-      compartment_name = "cmp-stag-<application_acronym>"
-      condition        = "{\"eventType\": \"com.oraclecloud.virtualnetwork.updatevcn\"}"
-      description      = "Test Event Rule - Stag VCN Update"
-      is_enabled       = true
-    }
-  }
-}
-
-```
-
-Search and replace: 
-- ```<application_acronym>``` with your application acronym
-- ```<ocid-stream-ocid>``` with your OCI Stream OCID
-
-Feel free to replace any other configuration you want.
 
 ## State File
 
@@ -565,7 +298,7 @@ Feel free to replace any other configuration you want.
 
 ## Notes/Issues
 
-- Please note that this module contains a deprecated input value: ```projects``` which was used in the past to create sub-structures inside an application. 
+- Please note that we are curently facing a bug with the operation of removing/updating an attached load balancer.
 
 ## Versions
 
@@ -588,44 +321,6 @@ is 1.1.7. You can update by downloading from https://www.terraform.io/downloads.
 ```
 terraform init
 
-
-Initializing modules...
-- nexi-oci-app-provisioning.oci-iam-compartments in ../../../modules/oci-iam-compartments
-Downloading git::https://github.com/oracle-terraform-modules/terraform-oci-tdf-iam-compartments.git?ref=v0.2.4 for nexi-oci-app-provisioning.oci-iam-compartments.oci_iam_compartments...
-- nexi-oci-app-provisioning.oci-iam-compartments.oci_iam_compartments in .terraform/modules/nexi-oci-app-provisioning.oci-iam-compartments.oci_iam_compartments
-- nexi-oci-app-provisioning.oci-monitoring in ../../../modules/oci-monitoring
-Downloading git::ssh://git@cosmindev.github.com/fsana/oci_terraform_events.git for nexi-oci-app-provisioning.oci-monitoring.oci_events...
-- nexi-oci-app-provisioning.oci-monitoring.oci_events in .terraform/modules/nexi-oci-app-provisioning.oci-monitoring.oci_events
-- nexi-oci-app-provisioning.oci-network-security in ../../../modules/oci-network-security
-Downloading git::https://github.com/oracle-terraform-modules/terraform-oci-tdf-network-security.git?ref=v0.9.7 for nexi-oci-app-provisioning.oci-network-security.oci_security_policies...
-- nexi-oci-app-provisioning.oci-network-security.oci_security_policies in .terraform/modules/nexi-oci-app-provisioning.oci-network-security.oci_security_policies
-- nexi-oci-app-provisioning.oci-prod-network in ../../../modules/oci-network
-Downloading git::https://github.com/oracle-quickstart/oci-cis-landingzone-quickstart.git?ref=v2.3.1.0 for nexi-oci-app-provisioning.oci-prod-network.opco_vcns...
-- nexi-oci-app-provisioning.oci-prod-network.opco_vcns in .terraform/modules/nexi-oci-app-provisioning.oci-prod-network.opco_vcns/modules/network/vcn-basic
-- nexi-oci-app-provisioning.oci-stag-network in ../../../modules/oci-network
-Downloading git::https://github.com/oracle-quickstart/oci-cis-landingzone-quickstart.git?ref=v2.3.1.0 for nexi-oci-app-provisioning.oci-stag-network.opco_vcns...
-- nexi-oci-app-provisioning.oci-stag-network.opco_vcns in .terraform/modules/nexi-oci-app-provisioning.oci-stag-network.opco_vcns/modules/network/vcn-basic
-
-Initializing the backend...
-
-Initializing provider plugins...
-- Finding hashicorp/oci versions matching "~> 4.64.0"...
-- Finding latest version of hashicorp/time...
-- Installing hashicorp/oci v4.64.0...
-- Installed hashicorp/oci v4.64.0 (signed by HashiCorp)
-- Installing hashicorp/time v0.7.2...
-- Installed hashicorp/time v0.7.2 (signed by HashiCorp)
-
-Terraform has created a lock file .terraform.lock.hcl to record the provider
-selections it made above. Include this file in your version control repository
-so that Terraform can guarantee to make the same selections by default when
-you run "terraform init" in the future.
-
-Terraform has been successfully initialized!
-```
-
-
-```
 terraform plan
 
 terraform apply
@@ -633,26 +328,14 @@ terraform apply
 
 ## Outputs
 
- - This module is returning both a hierarchical and a flat structure of the:
-    - IAM Compartments
-    - Network topology
-    - Monitoring Configuration
+ - This module is returning both an hierarchical and a flat structure of the:
+    - Instance Pool
+    - Instance Configuration
+    - Autoscaling configuration
 
 that has been provisioned.
 
 We're exposing both versions as flat is easy to consume by other automations where hierarchical is easy to read by end user.
-
-## Terraform modules that are used by this project
-
-* ```../../../nexi-oci-app-provisioning``` 
-
-* https://github.com/oracle-terraform-modules/terraform-oci-tdf-iam-compartments/tree/v0.2.4
-
-* https://github.com/oracle-quickstart/oci-cis-landingzone-quickstart/tree/stable-2.3.1.0/modules/network/vcn-basic
-
-* https://github.com/oracle-terraform-modules/terraform-oci-tdf-network-security/tree/v0.9.7
-
-* https://github.com/fsana/oci_terraform_events
 
 ## Contributing
 
