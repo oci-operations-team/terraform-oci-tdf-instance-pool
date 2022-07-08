@@ -1,9 +1,20 @@
 # Copyright (c) 2022, Oracle and/or its affiliates.
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
+# instance_pool_config = null
+
+
+instance_pool_config = {
+    default_compartment_id = null
+    default_defined_tags   = null
+    default_freeform_tags  = null
+
+  instance_pool = null
+}
 
 
 
+/*
 instance_pool_config = {
   default_compartment_id = "ocid1.compartment.oc1..aaaaaaaawwhpzd5kxd7dcd56kiuuxeaa46icb44cnu7osq3mbclo2pnv3dpq"
   default_defined_tags   = {}
@@ -11,7 +22,7 @@ instance_pool_config = {
 
   instance_pool = {
     compartment_id = null
-    size           = 1
+    size           = 2
     defined_tags   = {}
     freeform_tags  = null
     display_name   = "cotud_inst_pool"
@@ -29,6 +40,8 @@ instance_pool_config = {
     }
 
     # optional
+    #load_balancers = {}
+
 
     load_balancers = {
       lb_1 = {
@@ -38,6 +51,7 @@ instance_pool_config = {
         vnic_selection   = "PrimaryVnic"
       }
     }
+
 
     instance_configuration = {
       # required
@@ -180,9 +194,9 @@ instance_pool_config = {
         # optional 
         capacity = {
           #Optional
-          initial = 1
+          initial = 2
           max     = 5
-          min     = 1
+          min     = 2
         }
         # optional 
         display_name = "cotud_auto_scaling_policy"
@@ -258,6 +272,5 @@ instance_pool_config = {
   }
 }
 
-
-
+*/
 
