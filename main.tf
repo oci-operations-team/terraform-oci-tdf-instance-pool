@@ -2,7 +2,7 @@
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 locals {
-  load_balancers = var.instance_pool_config.instance_pool.load_balancers != null ? var.instance_pool_config.instance_pool.load_balancers : {}
+  load_balancers = var.instance_pool_config != null ? var.instance_pool_config.instance_pool != null ? var.instance_pool_config.instance_pool.load_balancers != null ? var.instance_pool_config.instance_pool.load_balancers : {} : {} : {}
 }
 
 resource "oci_core_instance_configuration" "instance_configuration" {
