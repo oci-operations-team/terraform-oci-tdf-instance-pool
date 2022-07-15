@@ -1,9 +1,9 @@
 # Copyright (c) 2022, Oracle and/or its affiliates.
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
-# instance_pool_config = null
+instance_pool_config = null
 
-
+/*
 instance_pool_config = {
     default_compartment_id = null
     default_defined_tags   = null
@@ -11,6 +11,7 @@ instance_pool_config = {
 
   instance_pool = null
 }
+*/
 
 
 
