@@ -1,7 +1,7 @@
 # Copyright (c) 2022, Oracle and/or its affiliates.
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
-instance_pool_config = null
+//instance_pool_config = null
 
 /*
 instance_pool_config = {
@@ -15,7 +15,7 @@ instance_pool_config = {
 
 
 
-/*
+
 instance_pool_config = {
   default_compartment_id = "ocid1.compartment.oc1..aaaaaaaawwhpzd5kxd7dcd56kiuuxeaa46icb44cnu7osq3mbclo2pnv3dpq"
   default_defined_tags   = {}
@@ -103,7 +103,7 @@ instance_pool_config = {
           # optional value in [NATIVE, EMULATED, PARAVIRTUALIZED, CUSTOM]
           launch_mode = "NATIVE"
           # optional
-          ssh_public_key_path = "/Users/cotudor/my_ssh_keys/cos_key.pub"
+          ssh_public_key_path = "~/.ssh/cos_key.pub"
           # optional - value in [LIVE_MIGRATE, REBOOT] - default = LIVE_MIGRATE
           preferred_maintenance_action = "LIVE_MIGRATE"
           # optional
@@ -272,6 +272,3 @@ instance_pool_config = {
     }
   }
 }
-
-*/
-
